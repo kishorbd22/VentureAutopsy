@@ -3,9 +3,11 @@ Startup routes
 API endpoints for startup operations
 """
 
+from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
+
 from app.config.database import get_db
 from app.models.startup import Startup
 
@@ -13,23 +15,22 @@ router = APIRouter()
 
 
 @router.get("/", response_model=List[dict])
-async def get_startups(
-    skip: int = 0,
-    limit: int = 100,
-    db: Session = Depends(get_db)
-):
+async def get_startups(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     """
     Get all startups with pagination
     Returns a list of startups
     """
     startups = db.query(Startup).offset(skip).limit(limit).all()
-    return [{
-        "id": s.id,
-        "name": s.name,
-        "industry": s.industry,
-        "founded_date": s.founded_date,
-        "closed_date": s.closed_date
-    } for s in startups]
+    return [
+        {
+            "id": s.id,
+            "name": s.name,
+            "industry": s.industry,
+            "founded_date": s.founded_date,
+            "closed_date": s.closed_date,
+        }
+        for s in startups
+    ]
 
 
 @router.get("/{startup_id}", response_model=dict)
@@ -42,9 +43,9 @@ async def get_startup(startup_id: int, db: Session = Depends(get_db)):
     if not startup:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Startup with id {startup_id} not found"
+            detail=f"Startup with id {startup_id} not found",
         )
-    
+
     return {
         "id": startup.id,
         "name": startup.name,
@@ -68,5 +69,5 @@ async def get_startup(startup_id: int, db: Session = Depends(get_db)):
         "verified": startup.verified,
         "featured": startup.featured,
         "created_at": startup.created_at,
-        "updated_at": startup.updated_at
+        "updated_at": startup.updated_at,
     }

@@ -3,16 +3,21 @@ Analysis routes
 API endpoints for startup analysis
 """
 
-from fastapi import APIRouter, HTTPException, status
+from typing import Optional
+
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
-from typing import Dict, Any, Optional, List
-from app.services.startup_analyzer import analyzer
+from sqlalchemy.orm import Session
+
+from app.config.database import get_db
+from app.services.startup_analyzer import StartupAnalyzer
 
 router = APIRouter()
 
 
 class StartupAnalysisRequest(BaseModel):
     """Request model for startup analysis"""
+
     name: Optional[str] = Field(None, description="Startup name")
     industry: str = Field(..., description="Industry sector")
     sub_industry: Optional[str] = Field(None, description="Sub-industry")
@@ -20,72 +25,83 @@ class StartupAnalysisRequest(BaseModel):
     total_funding_usd: Optional[float] = Field(None, description="Total funding in USD")
     number_of_employees: Optional[int] = Field(None, description="Number of employees")
     death_cause: Optional[str] = Field(None, description="Reason for failure")
-    death_cause_details: Optional[str] = Field(None, description="Details about failure reason")
+    death_cause_details: Optional[str] = Field(
+        None, description="Details about failure reason"
+    )
     stage_at_death: Optional[str] = Field(None, description="Funding stage at failure")
     lifespan_days: Optional[int] = Field(None, description="Days until closure")
 
 
 @router.post("/analyze")
-async def analyze_startup(request: StartupAnalysisRequest):
+async def analyze_startup(
+    request: StartupAnalysisRequest, db: Session = Depends(get_db)
+):
     """
     Analyze a startup and provide risk assessment
     Returns risk score, similar startups, and risk factors
     """
     try:
         # Convert request to dict
-        startup_data = request.dict(exclude_none=True)
-        
+        startup_data = request.model_dump(exclude_none=True)
+
+        # Initialize analyzer with database session for optimized performance
+        analyzer = StartupAnalyzer(db=db)
+
         # Perform analysis
         result = analyzer.analyze_startup(startup_data)
-        
+
         return {
             "success": True,
             "data": {
-                "risk_score": result['risk_score'],
-                "risk_level": result['risk_level'],
-                "risk_factors": result['risk_factors'],
-                "similar_startups": result['similar_startups'][:5],  # Top 5
-                "insights": result['insights'],
-                "recommendations": result['recommendations']
-            }
+                "score": result["data"]["score"],
+                "risk_level": result["data"]["risk_level"],
+                "explanations": result["data"]["explanations"],
+                "recommendations": result["data"]["recommendations"],
+            },
+            "meta": {
+                "cached": result["meta"]["cached"],
+                "processing_time_ms": result["meta"]["processing_time_ms"],
+            },
         }
-    
+
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Analysis failed: {str(e)}"
+            detail=f"Analysis failed: {str(e)}",
         )
 
 
 @router.get("/industries")
-async def get_industries():
+async def get_industries(db: Session = Depends(get_db)):
     """
-    Get list of all industries from the database
+    Get list of all industries from the dataset
     """
-    industries = list(set(
-        s.get('industry', '') for s in analyzer.failed_startups 
-        if s.get('industry')
-    ))
-    industries.sort()
-    
-    return {
-        "success": True,
-        "data": industries
-    }
+    try:
+        analyzer = StartupAnalyzer(db=db)
+        industries = analyzer.get_unique_industries()
+
+        return {"success": True, "data": industries, "error": None}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve industries: {str(e)}",
+        )
 
 
 @router.get("/death-causes")
-async def get_death_causes():
+async def get_death_causes(db: Session = Depends(get_db)):
     """
-    Get list of all death causes from the database
+    Get list of all death causes from the dataset
     """
-    causes = list(set(
-        s.get('death_cause', '') for s in analyzer.failed_startups 
-        if s.get('death_cause')
-    ))
-    causes.sort()
-    
-    return {
-        "success": True,
-        "data": causes
-    }
+    try:
+        analyzer = StartupAnalyzer(db=db)
+        causes = analyzer.get_unique_death_causes()
+
+        return {"success": True, "data": causes, "error": None}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve death causes: {str(e)}",
+        )
