@@ -31,7 +31,7 @@ dist/
 .vite/
 
 # Testing
-.coverage
+coverage.xml
 pytest_cache/
 htmlcov/
 
