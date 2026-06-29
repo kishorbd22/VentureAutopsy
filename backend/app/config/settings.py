@@ -22,8 +22,18 @@ class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
     PORT: int = 8000
 
+    # Security
+    SECRET_KEY: str = "your-secret-key-change-in-production"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+
     # Database
     DATABASE_URL: str = "sqlite:///./data/startups.db"
+    POSTGRES_USER: str = "postgres"
+    POSTGRES_PASSWORD: str = "postgres"
+    POSTGRES_SERVER: str = "db"
+    POSTGRES_PORT: str = "5432"
+    POSTGRES_DB: str = "venture_autopsy"
 
     # CORS
     CORS_ORIGINS: List[str] = ["http://localhost:5173"]

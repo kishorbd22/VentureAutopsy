@@ -9,7 +9,7 @@ const api = axios.create({
   },
 })
 
-// Request interceptor to add auth token (for future use)
+// Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token')
@@ -18,54 +18,137 @@ api.interceptors.request.use(
     }
     return config
   },
-  (error) => {
-    return Promise.reject(error)
-  }
+  (error) => Promise.reject(error)
 )
 
 // Response interceptor to handle errors globally
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // Handle common errors
     if (error.response) {
-      // Server responded with error status
       const { status, data } = error.response
-      
+      const errorMessage = data?.detail || data?.message || error.message
+
       switch (status) {
         case 401:
-          // Unauthorized - redirect to login (for future use)
+          localStorage.removeItem('token')
           console.error('Unauthorized - please login')
           break
         case 403:
-          // Forbidden
           console.error('Forbidden - insufficient permissions')
           break
         case 404:
-          // Not found
           console.error('Resource not found')
           break
         case 422:
-          // Validation error
-          console.error('Validation error:', data.detail)
+          console.error('Validation error:', data?.detail)
+          break
+        case 429:
+          console.error('Rate limit exceeded')
           break
         case 500:
-          // Server error
           console.error('Server error')
           break
         default:
           console.error(`Error ${status}:`, data)
       }
+
+      // Enhance error object with server message
+      error.friendlyMessage = errorMessage
+      error.statusCode = status
     } else if (error.request) {
-      // Request was made but no response received
-      console.error('Network error - no response received')
+      error.friendlyMessage = 'Network error - no response received'
+      console.error(error.friendlyMessage)
     } else {
-      // Something else happened
+      error.friendlyMessage = error.message
       console.error('Error:', error.message)
     }
-    
+
     return Promise.reject(error)
   }
 )
+
+// ─── Startup endpoints ───────────────────────────────────────────
+
+/**
+ * Fetch all startups with optional filtering
+ * @param {Object} params - Query parameters
+ * @returns {Promise<Array>}
+ */
+export const fetchStartups = (params = {}) =>
+  api.get('/startups/', { params }).then((res) => res.data)
+
+/**
+ * Fetch a single startup by ID
+ * @param {number|string} id
+ * @returns {Promise<Object>}
+ */
+export const fetchStartupById = (id) =>
+  api.get(`/startups/${id}`).then((res) => res.data)
+
+// ─── User endpoints ──────────────────────────────────────────────
+
+/**
+ * Fetch all users with optional filtering
+ * @param {Object} params
+ * @returns {Promise<Array>}
+ */
+export const fetchUsers = (params = {}) =>
+  api.get('/users/', { params }).then((res) => res.data)
+
+/**
+ * Fetch user by ID
+ * @param {number|string} id
+ * @returns {Promise<Object>}
+ */
+export const fetchUserById = (id) =>
+  api.get(`/users/${id}`).then((res) => res.data)
+
+// ─── Analysis endpoints ──────────────────────────────────────────
+
+/**
+ * Analyze a startup
+ * POST /analysis/analyze
+ * @param {Object} data - Analysis input data
+ * @param {string} data.industry - Industry sector (required)
+ * @param {string} [data.name] - Startup name
+ * @param {string} [data.sub_industry] - Sub-industry
+ * @param {string} [data.country] - Country
+ * @param {number} [data.total_funding_usd] - Total funding in USD
+ * @param {number} [data.number_of_employees] - Number of employees
+ * @param {string} [data.death_cause] - Reason for failure
+ * @param {string} [data.death_cause_details] - Details about failure reason
+ * @param {string} [data.stage_at_death] - Funding stage at failure
+ * @param {number} [data.lifespan_days] - Days until closure
+ * @returns {Promise<{success: boolean, data: Object, meta: Object}>}
+ */
+export const analyzeStartup = (data) =>
+  api.post('/analysis/analyze', data).then((res) => res.data)
+
+/**
+ * Fetch list of all industries
+ * GET /analysis/industries
+ * @returns {Promise<{success: boolean, data: string[], error: string|null}>}
+ */
+export const fetchIndustries = () =>
+  api.get('/analysis/industries').then((res) => res.data)
+
+/**
+ * Fetch list of all death causes
+ * GET /analysis/death-causes
+ * @returns {Promise<{success: boolean, data: string[], error: string|null}>}
+ */
+export const fetchDeathCauses = () =>
+  api.get('/analysis/death-causes').then((res) => res.data)
+
+// ─── Analytics endpoints ─────────────────────────────────────────
+
+/**
+ * Fetch analytics data
+ * @param {Object} params
+ * @returns {Promise<Object>}
+ */
+export const fetchAnalytics = (params = {}) =>
+  api.get('/analytics/', { params }).then((res) => res.data)
 
 export default api

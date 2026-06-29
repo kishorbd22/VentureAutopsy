@@ -4,9 +4,9 @@ export default function Footer() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-white font-bold text-lg mb-4">🪦 Startup Graveyard</h3>
+            <h3 className="text-white font-bold text-lg mb-4">🔬 Venture Autopsy</h3>
             <p className="text-sm">
-              Analyzing startup failures to build better futures.
+              AI-powered startup failure intelligence for strategic decision-making.
             </p>
           </div>
           
@@ -39,7 +39,7 @@ export default function Footer() {
         </div>
         
         <div className="border-t border-gray-700 mt-8 pt-8 text-center text-sm">
-          <p>&copy; {new Date().getFullYear()} Startup Graveyard Analyzer. Built with ❤️ using FastAPI & React.</p>
+          <p>&copy; {new Date().getFullYear()} Venture Autopsy. Built with ❤️ using FastAPI & React.</p>
         </div>
       </div>
     </footer>

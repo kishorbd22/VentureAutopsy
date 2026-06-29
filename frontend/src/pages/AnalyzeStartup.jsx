@@ -1,423 +1,454 @@
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import api from '../services/api'
+import { useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { motion, AnimatePresence } from "framer-motion"
+import AnalysisForm from "../components/AnalysisForm"
+import { useAnalysis } from "../hooks/useAnalysis"
+import { useAnalysisHistory } from "../hooks/useAnalysisHistory"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card"
+import { Badge } from "../components/ui/badge"
+import { Button } from "../components/ui/button"
+import { ErrorMessage } from "../components/ErrorDisplay"
+import {
+  Shield,
+  TrendingUp,
+  Lightbulb,
+  ListChecks,
+  ArrowRight,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle,
+  Skull,
+  History,
+} from "lucide-react"
+
+const riskConfig = {
+  Critical: {
+    color: "text-red-600",
+    bg: "bg-red-50",
+    border: "border-red-200",
+    icon: Skull,
+    label: "Critical Risk",
+  },
+  High: {
+    color: "text-orange-600",
+    bg: "bg-orange-50",
+    border: "border-orange-200",
+    icon: XCircle,
+    label: "High Risk",
+  },
+  Medium: {
+    color: "text-yellow-600",
+    bg: "bg-yellow-50",
+    border: "border-yellow-200",
+    icon: AlertTriangle,
+    label: "Medium Risk",
+  },
+  Low: {
+    color: "text-emerald-600",
+    bg: "bg-emerald-50",
+    border: "border-emerald-200",
+    icon: CheckCircle2,
+    label: "Low Risk",
+  },
+}
+
+function getSeverityBadge(severity) {
+  const map = {
+    critical: "destructive",
+    high: "destructive",
+    medium: "warning",
+    low: "info",
+  }
+  return map[severity] || "secondary"
+}
+
+function RiskScoreCard({ score, riskLevel, explanations = [] }) {
+  const config = riskConfig[riskLevel] || riskConfig.Medium
+  const Icon = config.icon
+  const scorePercent = Math.min(score, 100)
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Card className={`overflow-hidden ${config.border}`}>
+        <CardHeader className={`${config.bg} border-b ${config.border}`}>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              Risk Assessment
+            </CardTitle>
+            <Badge variant={riskLevel === "Critical" ? "destructive" : riskLevel === "High" ? "destructive" : riskLevel === "Medium" ? "warning" : "success"}>
+              {config.label}
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-8">
+            <div className="relative flex-shrink-0">
+              <svg className="w-28 h-28 -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="42" fill="none" stroke="#e5e7eb" strokeWidth="8" />
+                <motion.circle
+                  cx="50" cy="50" r="42"
+                  fill="none"
+                  stroke={scorePercent > 70 ? "#ef4444" : scorePercent > 40 ? "#f59e0b" : "#10b981"}
+                  strokeWidth="8"
+                  strokeLinecap="round"
+                  strokeDasharray={`${2 * Math.PI * 42}`}
+                  initial={{ strokeDashoffset: 2 * Math.PI * 42 }}
+                  animate={{ strokeDashoffset: 2 * Math.PI * 42 * (1 - scorePercent / 100) }}
+                  transition={{ duration: 1.5, ease: "easeOut" }}
+                />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.5, type: "spring" }}
+                  className={`text-3xl font-bold ${config.color}`}
+                >
+                  {score}
+                </motion.span>
+              </div>
+            </div>
+
+            <div className="flex-1 space-y-2">
+              <p className="text-sm font-medium text-gray-700">Analysis Summary</p>
+              {explanations.length > 0 ? (
+                <ul className="space-y-1.5">
+                  {explanations.slice(0, 3).map((exp, i) => (
+                    <motion.li
+                      key={i}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.8 + i * 0.15 }}
+                      className="text-sm text-gray-600 flex items-start gap-2"
+                    >
+                      <span className="text-primary-500 mt-0.5">•</span>
+                      {exp}
+                    </motion.li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-gray-400 italic">No detailed explanations available</p>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  )
+}
+
+function InsightsCard({ title, icon: Icon, items, variant = "default" }) {
+  if (!items || items.length === 0) return null
+
+  const variantStyles = {
+    default: { bg: "bg-white", border: "border-gray-200", iconColor: "text-primary-500" },
+    warning: { bg: "bg-amber-50", border: "border-amber-200", iconColor: "text-amber-500" },
+    info: { bg: "bg-blue-50", border: "border-blue-200", iconColor: "text-blue-500" },
+  }
+  const style = variantStyles[variant] || variantStyles.default
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+      <Card className={`${style.bg} ${style.border}`}>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Icon className={`h-5 w-5 ${style.iconColor}`} />
+            {title}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ul className="space-y-2">
+            {items.map((item, i) => (
+              <motion.li
+                key={i}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.1 }}
+                className="flex items-start gap-2 text-sm text-gray-700"
+              >
+                <span className={`${style.iconColor} mt-0.5`}>→</span>
+                <span>{item}</span>
+              </motion.li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
+    </motion.div>
+  )
+}
+
+function FactorsCard({ factors = [] }) {
+  if (!factors || factors.length === 0) return null
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2 }}>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5 text-amber-500" />
+            Risk Factors
+          </CardTitle>
+          <CardDescription>Key factors contributing to the risk score</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {factors.map((factor, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.1 }}
+              className="flex items-start gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100"
+            >
+              <Badge variant={getSeverityBadge(factor.severity)} className="mt-0.5 flex-shrink-0">
+                {factor.weight} pts
+              </Badge>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900">{factor.factor}</p>
+                {factor.description && (
+                  <p className="text-xs text-gray-500 mt-0.5">{factor.description}</p>
+                )}
+              </div>
+            </motion.div>
+          ))}
+        </CardContent>
+      </Card>
+    </motion.div>
+  )
+}
+
+function SimilarStartupsCard({ startups = [] }) {
+  if (!startups || startups.length === 0) return null
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.4 }}>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-indigo-500" />
+            Similar Failed Startups
+          </CardTitle>
+          <CardDescription>Startups that share similar characteristics</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {startups.map((s, i) => (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.08 }}
+              className="flex items-center justify-between p-3 rounded-lg bg-gray-50 border border-gray-100"
+            >
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">{s.name}</p>
+                <p className="text-xs text-gray-500">{s.industry} · {s.death_cause}</p>
+              </div>
+              <div className="text-right flex-shrink-0 ml-3">
+                <p className="text-xs font-medium text-gray-700">{s.lifespan_days}d</p>
+                <p className="text-xs text-gray-400">${(s.total_funding_usd / 1000000).toFixed(1)}M</p>
+              </div>
+            </motion.div>
+          ))}
+        </CardContent>
+      </Card>
+    </motion.div>
+  )
+}
 
 export default function AnalyzeStartup() {
-  const [formData, setFormData] = useState({
-    name: '',
-    industry: '',
-    sub_industry: '',
-    country: '',
-    total_funding_usd: '',
-    number_of_employees: '',
-    death_cause: '',
-    death_cause_details: '',
-    stage_at_death: '',
-    lifespan_days: ''
-  })
-  
-  const [industries, setIndustries] = useState([])
-  const [deathCauses, setDeathCauses] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [loadingData, setLoadingData] = useState(true)
-  const [error, setError] = useState(null)
-  const [analysisResult, setAnalysisResult] = useState(null)
+  const navigate = useNavigate()
+  const { mutateAsync: analyze, isPending, error } = useAnalysis()
+  const { addEntry } = useAnalysisHistory()
+  const [result, setResult] = useState(null)
+  const [submittedName, setSubmittedName] = useState("")
+  const [lastInput, setLastInput] = useState(null)
 
-  // Load dropdown data on mount
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [industriesRes, causesRes] = await Promise.all([
-          api.get('/analysis/industries'),
-          api.get('/analysis/death-causes')
-        ])
-        setIndustries(industriesRes.data.data)
-        setDeathCauses(causesRes.data.data)
-      } catch (err) {
-        console.error('Failed to load form data:', err)
-      } finally {
-        setLoadingData(false)
-      }
-    }
-    fetchData()
-  }, [])
-
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
-    setAnalysisResult(null)
-
+  const handleSubmit = async (data) => {
     try {
-      // Prepare data - convert numeric fields
-      const requestData = {
-        ...formData,
-        total_funding_usd: formData.total_funding_usd ? parseFloat(formData.total_funding_usd) : undefined,
-        number_of_employees: formData.number_of_employees ? parseInt(formData.number_of_employees) : undefined,
-        lifespan_days: formData.lifespan_days ? parseInt(formData.lifespan_days) : undefined
-      }
+      const response = await analyze(data)
+      const resultData = response.data
 
-      const response = await api.post('/analysis/analyze', requestData)
-      setAnalysisResult(response.data.data)
+      setResult(resultData)
+      setSubmittedName(data.name || "This Startup")
+      setLastInput(data)
+
+      // Persist to history
+      addEntry({
+        startupName: data.name || "This Startup",
+        input: data,
+        score: resultData.score,
+        riskLevel: resultData.risk_level,
+        riskFactorCount: resultData.risk_factors?.length || 0,
+        recommendationCount: resultData.recommendations?.length || 0,
+        fullData: resultData,
+      })
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to analyze startup. Please try again.')
-      console.error('Analysis error:', err)
-    } finally {
-      setLoading(false)
+      console.error(err)
     }
-  }
-
-  const getRiskColor = (level) => {
-    switch (level) {
-      case 'Critical': return 'text-red-600 bg-red-100 border-red-200'
-      case 'High': return 'text-orange-600 bg-orange-100 border-orange-200'
-      case 'Medium': return 'text-yellow-600 bg-yellow-100 border-yellow-200'
-      case 'Low': return 'text-green-600 bg-green-100 border-green-200'
-      default: return 'text-gray-600 bg-gray-100 border-gray-200'
-    }
-  }
-
-  const getSeverityColor = (severity) => {
-    switch (severity) {
-      case 'critical': return 'bg-red-500'
-      case 'high': return 'bg-orange-500'
-      case 'medium': return 'bg-yellow-500'
-      case 'low': return 'bg-blue-500'
-      default: return 'bg-gray-500'
-    }
-  }
-
-  if (loadingData) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="text-lg text-gray-600">Loading...</div>
-      </div>
-    )
   }
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Startup Analysis</h1>
-        <p className="text-gray-600">
+    <div className="max-w-6xl mx-auto space-y-8">
+      {/* Page Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-2"
+      >
+        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+          <Skull className="h-8 w-8 text-gray-400" />
+          Startup Analysis
+        </h1>
+        <p className="text-gray-500 max-w-2xl">
           Analyze your startup's risk profile based on historical data from failed startups.
+          Our AI compares your inputs against thousands of data points to predict failure patterns.
         </p>
-      </div>
+      </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Input Form */}
-        <div className="card">
-          <h2 className="text-2xl font-semibold mb-6">Startup Details</h2>
-          
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                Startup Name (Optional)
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                className="input"
-                placeholder="e.g., Acme Inc"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="industry" className="block text-sm font-medium text-gray-700 mb-1">
-                Industry <span className="text-red-500">*</span>
-              </label>
-              <select
-                id="industry"
-                name="industry"
-                value={formData.industry}
-                onChange={handleChange}
-                required
-                className="input"
-              >
-                <option value="">Select Industry</option>
-                {industries.map(industry => (
-                  <option key={industry} value={industry}>{industry}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="sub_industry" className="block text-sm font-medium text-gray-700 mb-1">
-                Sub-Industry (Optional)
-              </label>
-              <input
-                type="text"
-                id="sub_industry"
-                name="sub_industry"
-                value={formData.sub_industry}
-                onChange={handleChange}
-                className="input"
-                placeholder="e.g., SaaS, FinTech"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-1">
-                Country (Optional)
-              </label>
-              <input
-                type="text"
-                id="country"
-                name="country"
-                value={formData.country}
-                onChange={handleChange}
-                className="input"
-                placeholder="e.g., USA"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="stage_at_death" className="block text-sm font-medium text-gray-700 mb-1">
-                Stage at Risk
-              </label>
-              <select
-                id="stage_at_death"
-                name="stage_at_death"
-                value={formData.stage_at_death}
-                onChange={handleChange}
-                className="input"
-              >
-                <option value="">Select Stage</option>
-                <option value="Pre-Seed">Pre-Seed</option>
-                <option value="Seed">Seed</option>
-                <option value="Series A">Series A</option>
-                <option value="Series B">Series B</option>
-                <option value="Series C">Series C</option>
-                <option value="Series D">Series D</option>
-                <option value="Series E">Series E+</option>
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="death_cause" className="block text-sm font-medium text-gray-700 mb-1">
-                Primary Risk Factor
-              </label>
-              <select
-                id="death_cause"
-                name="death_cause"
-                value={formData.death_cause}
-                onChange={handleChange}
-                className="input"
-              >
-                <option value="">Select Risk Factor</option>
-                {deathCauses.map(cause => (
-                  <option key={cause} value={cause}>{cause}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="total_funding_usd" className="block text-sm font-medium text-gray-700 mb-1">
-                  Total Funding ($)
-                </label>
-                <input
-                  type="number"
-                  id="total_funding_usd"
-                  name="total_funding_usd"
-                  value={formData.total_funding_usd}
-                  onChange={handleChange}
-                  className="input"
-                  placeholder="e.g., 1000000"
-                  min="0"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="number_of_employees" className="block text-sm font-medium text-gray-700 mb-1">
-                  Employees
-                </label>
-                <input
-                  type="number"
-                  id="number_of_employees"
-                  name="number_of_employees"
-                  value={formData.number_of_employees}
-                  onChange={handleChange}
-                  className="input"
-                  placeholder="e.g., 50"
-                  min="1"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="lifespan_days" className="block text-sm font-medium text-gray-700 mb-1">
-                Days in Business
-              </label>
-              <input
-                type="number"
-                id="lifespan_days"
-                name="lifespan_days"
-                value={formData.lifespan_days}
-                onChange={handleChange}
-                className="input"
-                placeholder="e.g., 730 (2 years)"
-                min="0"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="death_cause_details" className="block text-sm font-medium text-gray-700 mb-1">
-                Additional Context (Optional)
-              </label>
-              <textarea
-                id="death_cause_details"
-                name="death_cause_details"
-                value={formData.death_cause_details}
-                onChange={handleChange}
-                className="input"
-                rows="3"
-                placeholder="Provide any additional context about your startup..."
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading || !formData.industry}
-              className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Analyzing...' : 'Analyze Startup'}
-            </button>
-          </form>
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+        {/* Form - Left Side */}
+        <div className="lg:col-span-2">
+          <Card>
+            <CardContent className="p-6">
+              <AnalysisForm onSubmit={handleSubmit} isPending={isPending} />
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Results */}
-        <div className="space-y-6">
+        {/* Results - Right Side */}
+        <div className="lg:col-span-3 space-y-6">
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-              <p className="font-medium">Error</p>
-              <p className="text-sm">{error}</p>
-            </div>
+            <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+              <ErrorMessage
+                message={error.friendlyMessage || error.message || "Analysis failed. Please try again."}
+              />
+            </motion.div>
           )}
 
-          {analysisResult && (
-            <>
-              {/* Risk Score Card */}
-              <div className="card">
-                <h2 className="text-2xl font-semibold mb-4">Risk Assessment</h2>
-                
-                <div className={`rounded-lg border-2 p-6 mb-6 ${getRiskColor(analysisResult.risk_level)}`}>
-                  <div className="text-center">
-                    <div className="text-5xl font-bold mb-2">
-                      {analysisResult.risk_score}
-                    </div>
-                    <div className="text-xl font-semibold">
-                      Risk Score: {analysisResult.risk_level}
-                    </div>
-                  </div>
-                </div>
+          {/* Loading state */}
+          {isPending && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col items-center justify-center py-16 gap-4"
+            >
+              <div className="relative">
+                <div className="h-16 w-16 rounded-full border-4 border-gray-200" />
+                <div className="absolute inset-0 h-16 w-16 rounded-full border-4 border-transparent border-t-primary-600 animate-spin" />
+              </div>
+              <p className="text-sm text-gray-500 animate-pulse">Analyzing your startup data...</p>
+            </motion.div>
+          )}
+
+          {/* Results */}
+          <AnimatePresence mode="wait">
+            {result && !isPending && (
+              <motion.div
+                key="results"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="space-y-6"
+              >
+                {/* View Report Button */}
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex justify-end"
+                >
+                  <Button
+                    onClick={() =>
+                      navigate("/report", {
+                        state: {
+                          analysisData: result,
+                          startupName: submittedName,
+                        },
+                      })
+                    }
+                    className="gap-2"
+                  >
+                    View Full Report
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </motion.div>
+
+                {/* Risk Score */}
+                <RiskScoreCard
+                  score={result.score}
+                  riskLevel={result.risk_level}
+                  explanations={result.explanations}
+                />
 
                 {/* Risk Factors */}
-                {analysisResult.risk_factors.length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3">Risk Factors</h3>
-                    <div className="space-y-3">
-                      {analysisResult.risk_factors.map((factor, index) => (
-                        <div key={index} className="border-l-4 border-gray-200 bg-gray-50 p-4 rounded">
-                          <div className="flex items-start gap-3">
-                            <div className={`w-2 h-2 rounded-full mt-2 ${getSeverityColor(factor.severity)}`}></div>
-                            <div className="flex-grow">
-                              <div className="flex justify-between items-start">
-                                <h4 className="font-semibold text-gray-900">{factor.factor}</h4>
-                                <span className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">
-                                  {factor.weight} pts
-                                </span>
-                              </div>
-                              <p className="text-sm text-gray-600 mt-1">{factor.description}</p>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                {result.risk_factors && result.risk_factors.length > 0 && (
+                  <FactorsCard factors={result.risk_factors} />
                 )}
+
+                {/* Insights */}
+                {result.insights && result.insights.length > 0 && (
+                  <InsightsCard
+                    title="Insights"
+                    icon={Lightbulb}
+                    items={result.insights}
+                    variant="info"
+                  />
+                )}
+
+                {/* Recommendations */}
+                {result.recommendations && result.recommendations.length > 0 && (
+                  <InsightsCard
+                    title="Recommendations"
+                    icon={ListChecks}
+                    items={result.recommendations}
+                    variant="warning"
+                  />
+                )}
+
+                {/* Similar Startups */}
+                {result.similar_startups && result.similar_startups.length > 0 && (
+                  <SimilarStartupsCard startups={result.similar_startups} />
+                )}
+
+                {/* History link */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1 }}
+                  className="text-center"
+                >
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => navigate("/history")}
+                    className="gap-2 text-gray-400"
+                  >
+                    <History className="h-4 w-4" />
+                    View analysis history
+                  </Button>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Empty state */}
+          {!result && !isPending && !error && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex flex-col items-center justify-center py-16 text-center"
+            >
+              <div className="h-20 w-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                <Shield className="h-10 w-10 text-gray-300" />
               </div>
-
-              {/* Insights Card */}
-              {analysisResult.insights.length > 0 && (
-                <div className="card">
-                  <h3 className="text-xl font-semibold mb-4">💡 Insights</h3>
-                  <ul className="space-y-2">
-                    {analysisResult.insights.map((insight, index) => (
-                      <li key={index} className="flex items-start gap-2 text-gray-700">
-                        <span className="text-primary-600 mt-1">•</span>
-                        <span>{insight}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Recommendations Card */}
-              {analysisResult.recommendations.length > 0 && (
-                <div className="card bg-blue-50 border border-blue-200">
-                  <h3 className="text-xl font-semibold mb-4 text-blue-900">📋 Recommendations</h3>
-                  <ul className="space-y-3">
-                    {analysisResult.recommendations.map((rec, index) => (
-                      <li key={index} className="flex items-start gap-3 text-blue-800">
-                        <span className="text-blue-600 mt-1">→</span>
-                        <span>{rec}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {/* Similar Startups Card */}
-              {analysisResult.similar_startups.length > 0 && (
-                <div className="card">
-                  <h3 className="text-xl font-semibold mb-4">🔍 Similar Failed Startups</h3>
-                  <div className="space-y-4">
-                    {analysisResult.similar_startups.map((startup, index) => (
-                      <div key={index} className="border-b border-gray-200 pb-4 last:border-b-0 last:pb-0">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <h4 className="font-semibold text-gray-900">{startup.name}</h4>
-                            <p className="text-sm text-gray-600">{startup.industry}</p>
-                          </div>
-                          <span className="text-xs bg-primary-100 text-primary-800 px-2 py-1 rounded">
-                            {startup.similarity_score} matches
-                          </span>
-                        </div>
-                        <div className="text-sm text-gray-600 space-y-1">
-                          <p>• <span className="font-medium">Cause:</span> {startup.death_cause}</p>
-                          <p>• <span className="font-medium">Lifespan:</span> {startup.lifespan_days} days</p>
-                          <p>• <span className="font-medium">Funding:</span> ${(startup.total_funding_usd / 1000000).toFixed(1)}M</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-
-          {!analysisResult && !error && (
-            <div className="card bg-gray-50 border-2 border-dashed border-gray-300">
-              <div className="text-center py-12">
-                <div className="text-6xl mb-4">📊</div>
-                <h3 className="text-xl font-semibold mb-2">No Analysis Yet</h3>
-                <p className="text-gray-600">
-                  Fill in your startup details and click "Analyze Startup" to see results here.
-                </p>
-              </div>
-            </div>
+              <h3 className="text-lg font-semibold text-gray-700 mb-1">No Analysis Yet</h3>
+              <p className="text-sm text-gray-400 max-w-sm">
+                Fill in your startup details on the left and click "Analyze Startup" to see the risk assessment here.
+              </p>
+            </motion.div>
           )}
         </div>
       </div>

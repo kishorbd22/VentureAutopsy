@@ -5,10 +5,9 @@ export default function Navbar() {
   
   const navItems = [
     { path: '/', label: 'Home' },
-    { path: '/startups', label: 'Startups' },
-    { path: '/analyze', label: 'Analyze' },
-    { path: '/users', label: 'Users' },
-    { path: '/analytics', label: 'Analytics' },
+    { path: '/startups', label: 'Graveyard' },
+    { path: '/analyze', label: 'Autopsy' },
+    { path: '/analytics', label: 'Intelligence' },
   ]
   
   return (
@@ -16,7 +15,7 @@ export default function Navbar() {
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="text-white text-xl font-bold">
-            🪦 Startup Graveyard
+            🔬 Venture Autopsy
           </Link>
           
           <div className="hidden md:flex space-x-8">

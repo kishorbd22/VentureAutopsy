@@ -1,47 +1,43 @@
-import { useState, useEffect } from 'react'
-import api from '../services/api'
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { fetchStartups, fetchStartupById, analyzeStartup } from "../services/api"
 
-export function useStartups() {
-  const [startups, setStartups] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+/**
+ * Hook to fetch all startups with React Query
+ * @param {Object} params - Query parameters for filtering
+ */
+export function useStartups(params = {}) {
+  return useQuery({
+    queryKey: ["startups", params],
+    queryFn: () => fetchStartups(params),
+    select: (data) => data?.results || data || [],
+  })
+}
 
-  const fetchStartups = async (params = {}) => {
-    try {
-      setLoading(true)
-      setError(null)
-      const response = await api.get('/startups/', { params })
-      setStartups(response.data)
-      return response.data
-    } catch (err) {
-      setError('Failed to fetch startups')
-      console.error(err)
-      return []
-    } finally {
-      setLoading(false)
-    }
-  }
+/**
+ * Hook to fetch a single startup by ID
+ * @param {number|string} id
+ */
+export function useStartup(id) {
+  return useQuery({
+    queryKey: ["startup", id],
+    queryFn: () => fetchStartupById(id),
+    enabled: !!id,
+  })
+}
 
-  const fetchStartupById = async (id) => {
-    try {
-      setLoading(true)
-      setError(null)
-      const response = await api.get(`/startups/${id}`)
-      return response.data
-    } catch (err) {
-      setError('Failed to fetch startup details')
-      console.error(err)
-      return null
-    } finally {
-      setLoading(false)
-    }
-  }
+/**
+ * Hook to analyze a startup (mutation)
+ */
+export function useAnalyzeStartup() {
+  const queryClient = useQueryClient()
 
-  return {
-    startups,
-    loading,
-    error,
-    fetchStartups,
-    fetchStartupById,
-  }
+  return useMutation({
+    mutationFn: (data) => analyzeStartup(data),
+    onSuccess: (data) => {
+      // Invalidate relevant queries
+      queryClient.invalidateQueries({ queryKey: ["startups"] })
+      queryClient.invalidateQueries({ queryKey: ["analytics"] })
+      return data
+    },
+  })
 }

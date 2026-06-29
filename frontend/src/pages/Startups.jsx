@@ -52,7 +52,7 @@ export default function Startups() {
         <div className="card text-center py-12">
           <div className="text-6xl mb-4">🏚️</div>
           <h2 className="text-2xl font-semibold mb-2">No startups yet</h2>
-          <p className="text-gray-600">The graveyard is empty. Check back later!</p>
+          <p className="text-gray-600">No ventures in the database yet. Start analyzing to build your intelligence.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

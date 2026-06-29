@@ -1,47 +1,26 @@
-import { useState, useEffect } from 'react'
-import api from '../services/api'
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { fetchUsers, fetchUserById } from "../services/api"
 
-export function useUsers() {
-  const [users, setUsers] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+/**
+ * Hook to fetch all users with React Query
+ * @param {Object} params - Query parameters for filtering
+ */
+export function useUsers(params = {}) {
+  return useQuery({
+    queryKey: ["users", params],
+    queryFn: () => fetchUsers(params),
+    select: (data) => data?.results || data || [],
+  })
+}
 
-  const fetchUsers = async (params = {}) => {
-    try {
-      setLoading(true)
-      setError(null)
-      const response = await api.get('/users/', { params })
-      setUsers(response.data)
-      return response.data
-    } catch (err) {
-      setError('Failed to fetch users')
-      console.error(err)
-      return []
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const fetchUserById = async (id) => {
-    try {
-      setLoading(true)
-      setError(null)
-      const response = await api.get(`/users/${id}`)
-      return response.data
-    } catch (err) {
-      setError('Failed to fetch user details')
-      console.error(err)
-      return null
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  return {
-    users,
-    loading,
-    error,
-    fetchUsers,
-    fetchUserById,
-  }
+/**
+ * Hook to fetch a single user by ID
+ * @param {number|string} id
+ */
+export function useUser(id) {
+  return useQuery({
+    queryKey: ["user", id],
+    queryFn: () => fetchUserById(id),
+    enabled: !!id,
+  })
 }
