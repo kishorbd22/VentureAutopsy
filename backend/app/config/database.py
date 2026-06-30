@@ -15,19 +15,16 @@ from app.config.settings import settings
 def get_database_url() -> str:
     database_url = settings.DATABASE_URL
 
-    # If using PostgreSQL-style env vars, build URL from components
-    if database_url == "sqlite:///./data/startups.db" and all([
-        settings.POSTGRES_USER,
-        settings.POSTGRES_PASSWORD,
-        settings.POSTGRES_SERVER,
-        settings.POSTGRES_PORT,
-        settings.POSTGRES_DB,
-    ]):
-        password = quote_plus(settings.POSTGRES_PASSWORD)
-        database_url = (
-            f"postgresql://{settings.POSTGRES_USER}:{password}"
-            f"@{settings.POSTGRES_SERVER}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
-        )
+    # Use PostgreSQL only if DATABASE_URL was explicitly set to PostgreSQL,
+    # or if POSTGRES_SERVER was explicitly overridden from default "db"
+    if database_url == "sqlite:///./data/startups.db":
+        # Check if PostgreSQL was explicitly configured
+        if settings.POSTGRES_SERVER and settings.POSTGRES_SERVER != "db":
+            password = quote_plus(settings.POSTGRES_PASSWORD)
+            database_url = (
+                f"postgresql://{settings.POSTGRES_USER}:{password}"
+                f"@{settings.POSTGRES_SERVER}:{settings.POSTGRES_PORT}/{settings.POSTGRES_DB}"
+            )
 
     return database_url
 

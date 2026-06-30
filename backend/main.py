@@ -10,8 +10,11 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config.database import init_database
 from app.routes.api_router import api_router
+from app.routes.health import router as health_router
 from app.config.settings import settings
 from app.middleware.error_handler import ErrorHandlerMiddleware
+from app.middleware.logging import LoggingMiddleware
+from app.middleware.error_tracking import ErrorTrackingMiddleware
 
 
 @asynccontextmanager
@@ -48,11 +51,17 @@ app.add_middleware(
 )
 
 
-# Error Handler Middleware
+# Middleware (order matters - first added is outermost)
+app.add_middleware(ErrorTrackingMiddleware)
+app.add_middleware(LoggingMiddleware)
 app.add_middleware(ErrorHandlerMiddleware)
 
 
-# Health Check Endpoint
+# Health Check Endpoints
+app.include_router(health_router, prefix="/api/v1", tags=["Health"])
+
+
+# Legacy health check (kept for backward compatibility)
 @app.get("/health", tags=["Health"])
 async def health_check():
     """

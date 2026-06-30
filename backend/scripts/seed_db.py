@@ -11,7 +11,7 @@ sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 from sqlalchemy.orm import Session
 
-from app.config.database import SessionLocal, engine
+from app.config.database import SessionLocal
 from app.models.user import User
 from app.utils.auth import get_password_hash
 

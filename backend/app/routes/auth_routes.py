@@ -16,7 +16,6 @@ from app.schemas.auth import (
 )
 from app.utils.auth import create_access_token, get_password_hash, verify_password
 from app.utils.auth_dependencies import get_current_active_user
-from app.utils.exceptions import AppException
 
 router = APIRouter()
 

@@ -1,0 +1,20 @@
+app = "venture-autopsy-backend"
+primary_region = "iad"
+
+[build]
+  builder = "heroku/buildpacks:20"
+
+[env]
+  PORT = "8080"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["web"]
+
+[[statics]]
+  guest_path = "/app/public"
+  url_prefix = "/static"

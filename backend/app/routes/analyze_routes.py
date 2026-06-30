@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.config.database import get_db
 from app.services.startup_analyzer import StartupAnalyzer
+from app.services.analytics_service import AnalyticsService
 
 router = APIRouter()
 
@@ -49,6 +50,20 @@ async def analyze_startup(
 
         # Perform analysis
         result = analyzer.analyze_startup(startup_data)
+
+        # Track analytics
+        try:
+            analytics_service = AnalyticsService(db)
+            analytics_service.track_analysis(
+                user_id=None,  # TODO: Get from current user when auth is implemented
+                data=startup_data,
+                result=result["data"],
+                ip_address=request.client.host if request.client else None,
+                user_agent=request.headers.get("user-agent", "")
+            )
+        except Exception as e:
+            # Don't fail the analysis if tracking fails
+            print(f"Analytics tracking failed: {e}")
 
         return {
             "success": True,
