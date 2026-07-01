@@ -4,7 +4,7 @@ import { useStartups } from "../hooks/useStartups"
 import { Card, CardContent } from "../components/ui/card"
 import { Badge } from "../components/ui/badge"
 import { Skeleton } from "../components/ui/skeleton"
-import ErrorDisplay from "../components/ErrorDisplay"
+import { ErrorDisplay } from "../components/ErrorDisplay"
 import {
   Search,
   X,

@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../co
 import { Badge } from "../components/ui/badge"
 import { Button } from "../components/ui/button"
 import { Skeleton } from "../components/ui/skeleton"
-import ErrorDisplay from "../components/ErrorDisplay"
+import { ErrorDisplay } from "../components/ErrorDisplay"
 import {
   Building2, TrendingUp, Skull, DollarSign, Clock, BarChart3,
   AlertTriangle, Search, ArrowRight, Sparkles, Layers,

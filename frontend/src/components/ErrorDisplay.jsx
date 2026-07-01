@@ -1,80 +1,87 @@
-import { AlertCircle, RefreshCw, ArrowLeft } from "lucide-react"
-import { useNavigate } from "react-router-dom"
+import { motion } from "framer-motion"
+import { AlertTriangle, RefreshCw, Home, ArrowLeft } from "lucide-react"
 import { Button } from "./ui/button"
-import { cn } from "../lib/utils"
+import { useNavigate } from "react-router-dom"
 
-/**
- * Error display component with retry and navigation options
- * @param {Object} props
- * @param {string} [props.title="Something went wrong"]
- * @param {string} [props.message]
- * @param {Error} [props.error]
- * @param {Function} [props.onRetry]
- * @param {boolean} [props.fullPage=false]
- */
-export default function ErrorDisplay({
-  title = "Something went wrong",
-  message,
-  error,
+function ErrorDisplay({ 
+  error, 
+  fullPage = false, 
   onRetry,
-  fullPage = false,
+  title = "Something went wrong",
+  message = "An unexpected error occurred. Please try again."
 }) {
   const navigate = useNavigate()
 
-  const containerClass = fullPage
-    ? "flex min-h-[50vh] items-center justify-center"
-    : "flex items-center justify-center py-12"
-
-  return (
-    <div className={cn(containerClass)}>
-      <div className="flex max-w-md flex-col items-center gap-4 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-50">
-          <AlertCircle className="h-8 w-8 text-red-500" />
-        </div>
-        <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
-        {message && (
-          <p className="text-sm text-gray-500">{message}</p>
-        )}
-        {error && (
-          <details className="w-full rounded-lg bg-gray-50 p-3 text-left">
-            <summary className="cursor-pointer text-xs font-medium text-gray-500">
-              Error details
-            </summary>
-            <pre className="mt-2 overflow-auto text-xs text-gray-600">
-              {error.message || JSON.stringify(error, null, 2)}
-            </pre>
-          </details>
-        )}
-        <div className="flex gap-3">
-          {onRetry && (
-            <Button variant="default" onClick={onRetry}>
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Try again
-            </Button>
-          )}
-          <Button variant="outline" onClick={() => navigate(-1)}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Go back
+  const content = (
+    <div className="flex flex-col items-center justify-center text-center">
+      <div className="w-16 h-16 rounded-2xl bg-danger-500/10 border border-danger-500/20 flex items-center justify-center mb-6">
+        <AlertTriangle className="w-8 h-8 text-danger-400" />
+      </div>
+      <h3 className="text-xl font-semibold text-white mb-2">{title}</h3>
+      <p className="text-surface-400 max-w-md mb-2">{message}</p>
+      {error && (
+        <p className="text-sm text-danger-400/80 bg-danger-500/5 rounded-lg px-4 py-2 max-w-md mb-6 font-mono">
+          {error.message || String(error)}
+        </p>
+      )}
+      <div className="flex items-center gap-3">
+        {onRetry && (
+          <Button variant="primary" onClick={onRetry} className="gap-2">
+            <RefreshCw className="w-4 h-4" />
+            Try Again
           </Button>
-        </div>
+        )}
+        <Button variant="secondary" onClick={() => navigate(-1)} className="gap-2">
+          <ArrowLeft className="w-4 h-4" />
+          Go Back
+        </Button>
+        <Button variant="ghost" onClick={() => navigate('/')} className="gap-2">
+          <Home className="w-4 h-4" />
+          Home
+        </Button>
       </div>
     </div>
   )
-}
 
-/**
- * Inline error message component
- */
-export function ErrorMessage({ message, className }) {
+  if (fullPage) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-dark-950 p-8">
+        {content}
+      </div>
+    )
+  }
+
   return (
-    <div
-      className={cn(
-        "flex items-center gap-2 rounded-lg bg-red-50 p-3 text-sm text-red-600",
-        className
-      )}
-    >
-      <AlertCircle className="h-4 w-4 flex-shrink-0" />
-      <span>{message}</span>
+    <div className="flex items-center justify-center py-16 px-8">
+      {content}
     </div>
   )
 }
+
+function ErrorBoundaryFallback({ error, resetErrorBoundary }) {
+  return (
+    <ErrorDisplay
+      error={error}
+      fullPage
+      title="Application Error"
+      message="The application encountered an unexpected error. Please try refreshing."
+      onRetry={resetErrorBoundary}
+    />
+  )
+}
+
+function ErrorMessage({ message, className = "" }) {
+  if (!message) return null
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`flex items-start gap-3 p-4 rounded-xl bg-danger-500/10 border border-danger-500/20 ${className}`}
+    >
+      <AlertTriangle className="w-5 h-5 text-danger-400 flex-shrink-0 mt-0.5" />
+      <p className="text-sm text-danger-300">{message}</p>
+    </motion.div>
+  )
+}
+
+export { ErrorDisplay, ErrorBoundaryFallback, ErrorMessage }

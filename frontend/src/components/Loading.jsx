@@ -1,80 +1,46 @@
 import { Loader2 } from "lucide-react"
-import { cn } from "../lib/utils"
 
-/**
- * Loading spinner component
- * @param {Object} props
- * @param {string} [props.size="md"] - Size of the spinner: "sm" | "md" | "lg"
- * @param {string} [props.text] - Optional loading text
- * @param {boolean} [props.fullPage=false] - Whether to display as full page overlay
- */
-export default function Loading({ size = "md", text, fullPage = false }) {
-  const sizeMap = {
-    sm: "h-4 w-4",
-    md: "h-8 w-8",
-    lg: "h-12 w-12",
+function Loading({ fullPage = false, text = "Loading..." }) {
+  if (fullPage) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-dark-950">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="w-12 h-12 border-2 border-dark-700 border-t-accent-500 rounded-full animate-spin" />
+            <div className="absolute inset-0 w-12 h-12 border-2 border-transparent border-r-accent-500/30 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '0.8s' }} />
+          </div>
+          <p className="text-surface-400 text-sm font-medium">{text}</p>
+        </div>
+      </div>
+    )
   }
 
-  const containerClass = fullPage
-    ? "fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm"
-    : "flex items-center justify-center py-12"
-
   return (
-    <div className={cn(containerClass, "flex flex-col items-center gap-3")}>
-      <Loader2 className={cn(sizeMap[size], "animate-spin text-primary-600")} />
-      {text && (
-        <p className="text-sm text-gray-500 animate-pulse">{text}</p>
-      )}
-    </div>
-  )
-}
-
-/**
- * Loading skeleton for startup cards
- */
-export function StartupCardSkeleton() {
-  return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-      <div className="space-y-4">
-        <div className="h-5 w-2/3 animate-pulse rounded bg-gray-200" />
-        <div className="h-4 w-1/2 animate-pulse rounded bg-gray-200" />
-        <div className="flex gap-2">
-          <div className="h-6 w-20 animate-pulse rounded-full bg-gray-200" />
-          <div className="h-6 w-16 animate-pulse rounded-full bg-gray-200" />
-        </div>
-        <div className="h-4 w-full animate-pulse rounded bg-gray-200" />
-        <div className="h-4 w-3/4 animate-pulse rounded bg-gray-200" />
+    <div className="flex items-center justify-center py-12">
+      <div className="flex flex-col items-center gap-3">
+        <Loader2 className="h-6 w-6 animate-spin text-accent-500" />
+        <p className="text-surface-400 text-sm">{text}</p>
       </div>
     </div>
   )
 }
 
-/**
- * Loading skeleton for tables
- */
-export function TableSkeleton({ rows = 5, cols = 4 }) {
+function LoadingSpinner({ size = "md", className = "" }) {
+  const sizes = {
+    sm: "h-4 w-4",
+    md: "h-6 w-6",
+    lg: "h-8 w-8",
+    xl: "h-12 w-12",
+  }
+
   return (
-    <div className="space-y-3">
-      {/* Header */}
-      <div className="flex gap-4">
-        {Array.from({ length: cols }).map((_, i) => (
-          <div
-            key={i}
-            className="h-8 flex-1 animate-pulse rounded bg-gray-200"
-          />
-        ))}
+    <div className={className}>
+      <div className="relative inline-flex">
+        <div className={`${sizes[size]} border-2 border-dark-700 border-t-accent-500 rounded-full animate-spin`} />
+        <div className={`absolute inset-0 ${sizes[size]} border-2 border-transparent border-r-accent-500/30 rounded-full animate-spin`} style={{ animationDirection: 'reverse', animationDuration: '0.8s' }} />
       </div>
-      {/* Rows */}
-      {Array.from({ length: rows }).map((_, row) => (
-        <div key={row} className="flex gap-4">
-          {Array.from({ length: cols }).map((_, col) => (
-            <div
-              key={col}
-              className="h-6 flex-1 animate-pulse rounded bg-gray-100"
-            />
-          ))}
-        </div>
-      ))}
     </div>
   )
 }
+
+export { Loading, LoadingSpinner }
