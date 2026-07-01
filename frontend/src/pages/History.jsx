@@ -16,7 +16,6 @@ import {
   AlertTriangle,
   CheckCircle2,
   XCircle,
-  Trash,
   FlaskConical,
   Eye,
 } from "lucide-react"
@@ -207,13 +206,11 @@ export default function History() {
         className="flex flex-col md:flex-row md:items-center md:justify-between gap-4"
       >
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <Clock className="h-8 w-8 text-gray-400" />
+          <h1 className="page-title flex items-center gap-3">
+            <Clock className="h-8 w-8 text-accent-400" />
             Analysis History
           </h1>
-          <p className="text-gray-500 mt-1">
-            View and revisit your past startup analyses.
-          </p>
+          <p className="page-description">View and revisit your past startup analyses</p>
         </div>
         {totalCount > 0 && (
           <div className="flex items-center gap-2">

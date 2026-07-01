@@ -1,8 +1,16 @@
 import { useState } from "react"
 import { Outlet } from "react-router-dom"
+import { AnimatePresence, motion } from "framer-motion"
 import Sidebar from "../components/Sidebar"
 import Navbar from "../components/Navbar"
 import { TooltipProvider } from "../components/ui/tooltip"
+
+const pageTransition = {
+  initial: { opacity: 0, y: 10, scale: 0.98 },
+  animate: { opacity: 1, y: 0, scale: 1 },
+  exit: { opacity: 0, y: -10, scale: 0.98 },
+  transition: { duration: 0.3, ease: "easeOut" }
+}
 
 export default function Layout() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -24,7 +32,17 @@ export default function Layout() {
           {/* Main content */}
           <main className="flex-1 overflow-y-auto p-6 lg:p-8">
             <div className="max-w-7xl mx-auto">
-              <Outlet />
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={location.pathname}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  variants={pageTransition}
+                >
+                  <Outlet />
+                </motion.div>
+              </AnimatePresence>
             </div>
           </main>
         </div>
