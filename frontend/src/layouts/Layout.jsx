@@ -1,22 +1,34 @@
+import { useState } from "react"
 import { Outlet } from "react-router-dom"
 import Sidebar from "../components/Sidebar"
+import Navbar from "../components/Navbar"
+import { TooltipProvider } from "../components/ui/tooltip"
 
 export default function Layout() {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <Sidebar />
+    <TooltipProvider>
+      <div className="flex min-h-screen bg-dark-950">
+        {/* Sidebar */}
+        <Sidebar 
+          collapsed={sidebarCollapsed} 
+          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} 
+        />
 
-      {/* Main content area */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Top bar spacer when sidebar is fixed */}
-        <div className="h-0 md:h-0" />
+        {/* Main content area */}
+        <div className={`flex flex-1 flex-col transition-all duration-300 ${sidebarCollapsed ? 'ml-16' : 'ml-64'}`}>
+          {/* Top Navigation Bar */}
+          <Navbar onMenuClick={() => setSidebarCollapsed(!sidebarCollapsed)} />
 
-        {/* Main content */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
-          <Outlet />
-        </main>
+          {/* Main content */}
+          <main className="flex-1 overflow-y-auto p-6 lg:p-8">
+            <div className="max-w-7xl mx-auto">
+              <Outlet />
+            </div>
+          </main>
+        </div>
       </div>
-    </div>
+    </TooltipProvider>
   )
 }

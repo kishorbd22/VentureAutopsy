@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom"
+import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "../lib/utils"
 import {
   LayoutDashboard,
@@ -7,99 +8,221 @@ import {
   BarChart3,
   Users,
   FileText,
-  Menu,
-  X,
   GitCompare,
   Clock,
   User,
+  ChevronLeft,
+  ChevronRight,
+  Sparkles,
+  Shield,
+  Activity,
+  Menu,
+  X,
 } from "lucide-react"
 import { useState } from "react"
-import { Button } from "./ui/button"
 
-const sidebarItems = [
-  { path: "/", label: "Dashboard", icon: LayoutDashboard },
-  { path: "/startups", label: "Graveyard", icon: Skull },
-  { path: "/analyze", label: "Autopsy", icon: Search },
+const mainItems = [
+  { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { path: "/startups", label: "Startup Graveyard", icon: Skull },
+  { path: "/analyze", label: "AI Autopsy", icon: Search },
+]
+
+const analyticsItems = [
   { path: "/analytics", label: "Intelligence", icon: BarChart3 },
   { path: "/compare", label: "Compare", icon: GitCompare },
   { path: "/history", label: "History", icon: Clock },
+]
+
+const managementItems = [
   { path: "/users", label: "Users", icon: Users },
   { path: "/report", label: "Reports", icon: FileText },
   { path: "/profile", label: "Profile", icon: User },
 ]
 
-export default function Sidebar() {
+const sidebarGroups = [
+  { label: "Main", items: mainItems },
+  { label: "Analytics", items: analyticsItems },
+  { label: "Management", items: managementItems },
+]
+
+export default function Sidebar({ collapsed, onToggle }) {
   const location = useLocation()
-  const [isOpen, setIsOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  const isActive = (path) => location.pathname === path
+
+  const SidebarContent = ({ isCollapsed }) => (
+    <>
+      {/* Logo */}
+      <div className="sidebar-header">
+        <Link to="/" className="flex items-center gap-3 min-w-0">
+          <div className="w-8 h-8 rounded-lg bg-gradient-premium flex items-center justify-center flex-shrink-0">
+            <Skull className="w-4 h-4 text-white" />
+          </div>
+          <AnimatePresence mode="wait">
+            {!isCollapsed && (
+              <motion.div
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: "auto" }}
+                exit={{ opacity: 0, width: 0 }}
+                className="overflow-hidden whitespace-nowrap"
+              >
+                <h1 className="text-sm font-bold text-white leading-tight">Venture</h1>
+                <p className="text-[10px] text-accent-400 font-medium">Autopsy</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </Link>
+      </div>
+
+      {/* Collapse toggle button */}
+      <button
+        onClick={onToggle}
+        className="absolute -right-3 top-16 w-6 h-6 rounded-full bg-elevation-3 border border-dark-700 flex items-center justify-center text-surface-400 hover:text-white transition-all z-10"
+      >
+        {isCollapsed ? (
+          <ChevronRight className="w-3 h-3" />
+        ) : (
+          <ChevronLeft className="w-3 h-3" />
+        )}
+      </button>
+
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto scrollbar-none px-3 py-4 space-y-6">
+        {sidebarGroups.map((group) => (
+          <div key={group.label}>
+            <AnimatePresence mode="wait">
+              {!isCollapsed && (
+                <motion.p
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="text-[10px] font-semibold text-surface-500 uppercase tracking-widest px-3 mb-2"
+                >
+                  {group.label}
+                </motion.p>
+              )}
+            </AnimatePresence>
+            <div className="space-y-1">
+              {group.items.map((item) => {
+                const Icon = item.icon
+                const active = isActive(item.path)
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setMobileOpen(false)}
+                    className={cn(
+                      "sidebar-nav-item relative group",
+                      active && "sidebar-nav-item-active",
+                      isCollapsed && "justify-center px-0"
+                    )}
+                    title={isCollapsed ? item.label : undefined}
+                  >
+                    <div className="relative flex-shrink-0">
+                      <Icon className={cn("w-5 h-5", active && "text-accent-400")} />
+                      {active && (
+                        <motion.div
+                          layoutId="activeIndicator"
+                          className="absolute -left-3 top-1/2 -translate-y-1/2 w-1 h-5 rounded-full bg-accent-500"
+                        />
+                      )}
+                    </div>
+                    <AnimatePresence mode="wait">
+                      {!isCollapsed && (
+                        <motion.span
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -10 }}
+                          className="text-sm"
+                        >
+                          {item.label}
+                        </motion.span>
+                      )}
+                    </AnimatePresence>
+                    {active && !isCollapsed && (
+                      <motion.div
+                        layoutId="activeBg"
+                        className="absolute inset-0 bg-accent-500/10 rounded-xl -z-10"
+                      />
+                    )}
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        ))}
+      </nav>
+
+      {/* AI Badge */}
+      <div className={cn("px-3 pb-4", isCollapsed && "px-2")}>
+        <div className={cn(
+          "rounded-xl bg-gradient-subtle border border-accent-500/10 p-3",
+          isCollapsed && "p-2 flex justify-center"
+        )}>
+          {isCollapsed ? (
+            <Sparkles className="w-5 h-5 text-accent-400" />
+          ) : (
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-accent-400 flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-accent-300">AI Powered</p>
+                <p className="text-[10px] text-surface-500">v2.0 Intelligence</p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  )
 
   return (
     <>
       {/* Mobile toggle */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="fixed top-3 left-3 z-50 md:hidden"
-        onClick={() => setIsOpen(!isOpen)}
+      <button
+        className="fixed top-3 left-3 z-50 md:hidden p-2 rounded-xl bg-elevation-2 border border-dark-700 text-surface-400"
+        onClick={() => setMobileOpen(!mobileOpen)}
       >
-        {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-      </Button>
+        {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+      </button>
 
-      {/* Overlay for mobile */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-30 bg-black/50 md:hidden"
-          onClick={() => setIsOpen(false)}
-        />
-      )}
+      {/* Mobile overlay */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-30 bg-black/60 backdrop-blur-sm md:hidden"
+            onClick={() => setMobileOpen(false)}
+          />
+        )}
+      </AnimatePresence>
 
-      {/* Sidebar */}
+      {/* Desktop Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-dark-100 transition-transform duration-300 md:relative md:translate-x-0",
-          isOpen ? "translate-x-0" : "-translate-x-full"
+          "fixed inset-y-0 left-0 z-40 flex flex-col bg-elevation-1 border-r border-dark-800 transition-all duration-300 ease-in-out",
+          collapsed ? "w-16" : "w-64"
         )}
       >
-        {/* Logo */}
-        <div className="flex h-16 items-center gap-2 border-b border-gray-700/50 px-6">
-          <span className="text-2xl">🔬</span>
-          <div>
-            <h1 className="text-lg font-bold text-white">Venture Autopsy</h1>
-            <p className="text-xs text-gray-400">Failure Intelligence</p>
-          </div>
-        </div>
-
-        {/* Navigation */}
-        <nav className="flex-1 space-y-1 px-3 py-4">
-          {sidebarItems.map((item) => {
-            const Icon = item.icon
-            const isActive = location.pathname === item.path
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                onClick={() => setIsOpen(false)}
-                className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                  isActive
-                    ? "bg-primary-600/10 text-primary-400"
-                    : "text-gray-400 hover:bg-gray-700/50 hover:text-gray-200"
-                )}
-              >
-                <Icon className="h-5 w-5" />
-                {item.label}
-                {isActive && (
-                  <span className="ml-auto h-2 w-2 rounded-full bg-primary-400" />
-                )}
-              </Link>
-            )
-          })}
-        </nav>
-
-        {/* Footer */}
-        <div className="border-t border-gray-700/50 px-6 py-4">
-          <p className="text-xs text-gray-500">v1.0.0</p>
-        </div>
+        <SidebarContent isCollapsed={collapsed} />
       </aside>
+
+      {/* Mobile Sidebar */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.aside
+            initial={{ x: "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "-100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed inset-y-0 left-0 z-40 w-64 bg-elevation-1 border-r border-dark-800 md:hidden"
+          >
+            <SidebarContent isCollapsed={false} />
+          </motion.aside>
+        )}
+      </AnimatePresence>
     </>
   )
 }
