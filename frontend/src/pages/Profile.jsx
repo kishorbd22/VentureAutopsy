@@ -1,161 +1,264 @@
-import { useQuery } from '@tanstack/react-query'
-import { User, LogOut } from 'lucide-react'
-import api from '../services/api'
+import { useState, useEffect } from "react"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { motion } from "framer-motion"
+import { User, Save, Shield, Activity } from "lucide-react"
+import api from "../services/api"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card"
+import { Button } from "../components/ui/button"
+import { Input } from "../components/ui/input"
+import { Label } from "../components/ui/label"
 
 export default function Profile() {
-  const { data: profile, isLoading, error: profileError } = useQuery({
-    queryKey: ['profile'],
+  const queryClient = useQueryClient()
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    username: "",
+    full_name: "",
+  })
+
+  const { data: user, isLoading } = useQuery({
+    queryKey: ["currentUser"],
     queryFn: async () => {
-      const response = await api.get('/auth/me')
+      const response = await api.get("/auth/me")
       return response.data
     },
   })
 
-  const handleLogout = () => {
-    localStorage.removeItem('token')
-    window.location.href = '/login'
-  }
+  useEffect(() => {
+    if (user?.data) {
+      setFormData({
+        name: user.data.name || "",
+        email: user.data.email || "",
+        username: user.data.username || "",
+        full_name: user.data.full_name || "",
+      })
+    }
+  }, [user])
 
-  const formatDate = (dateString) => {
-    if (!dateString) return 'Never'
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
+  const updateMutation = useMutation({
+    mutationFn: async (data) => {
+      const response = await api.put("/auth/me", data)
+      return response.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["currentUser"])
+      alert("Profile updated successfully")
+    },
+    onError: (error) => {
+      alert(error.friendlyMessage || "Failed to update profile")
+    },
+  })
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    updateMutation.mutate(formData)
   }
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    )
-  }
-
-  if (profileError) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-destructive">Failed to load profile. Please try again.</div>
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-dark-700 border-t-accent-500"></div>
+          <p className="mt-4 text-surface-400">Loading profile...</p>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto space-y-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground mb-2">User Profile</h1>
-        <p className="text-muted-foreground">Manage your account information</p>
-      </div>
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-between"
+      >
+        <div>
+          <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+            <User className="h-8 w-8 text-accent-400" />
+            Profile Settings
+          </h1>
+          <p className="text-surface-400 mt-1">
+            Manage your account settings and preferences
+          </p>
+        </div>
+      </motion.div>
 
       {/* Profile Card */}
-      <div className="bg-card border rounded-lg shadow-md overflow-hidden">
-        {/* Profile Header */}
-        <div className="bg-gradient-to-r from-primary/10 to-secondary/10 p-8 border-b">
-          <div className="flex items-center gap-6">
-            <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center">
-              {profile?.avatar_url ? (
-                <img
-                  src={profile.avatar_url}
-                  alt={profile.username}
-                  className="w-full h-full rounded-full object-cover"
-                />
-              ) : (
-                <User size={48} className="text-primary" />
-              )}
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-foreground">
-                {profile?.full_name || profile?.username}
-              </h2>
-              <p className="text-muted-foreground">@{profile?.username}</p>
-              <div className="flex gap-2 mt-3">
-                {profile?.is_admin && (
-                  <span className="px-3 py-1 bg-primary/20 text-primary text-sm rounded-full">
-                    Admin
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="h-5 w-5 text-accent-400" />
+              Personal Information
+            </CardTitle>
+            <CardDescription>
+              Update your personal details and account information
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Avatar Section */}
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-xl bg-gradient-premium flex items-center justify-center">
+                  <span className="text-2xl font-bold text-white">
+                    {formData.name?.charAt(0)?.toUpperCase() || formData.username?.charAt(0)?.toUpperCase() || 'U'}
                   </span>
-                )}
-                <span
-                  className={`px-3 py-1 text-sm rounded-full ${
-                    profile?.is_verified
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-                      : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
-                  }`}
+                </div>
+                <div>
+                  <h3 className="text-sm font-medium text-white">
+                    {formData.name || formData.username || "User"}
+                  </h3>
+                  <p className="text-xs text-surface-500">{formData.email}</p>
+                </div>
+              </div>
+
+              {/* Full Name */}
+              <div className="space-y-2">
+                <Label htmlFor="full_name" className="text-surface-300">
+                  Full Name
+                </Label>
+                <Input
+                  id="full_name"
+                  name="full_name"
+                  value={formData.full_name}
+                  onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                  placeholder="John Doe"
+                  className="input-premium"
+                />
+              </div>
+
+              {/* Username */}
+              <div className="space-y-2">
+                <Label htmlFor="username" className="text-surface-300">
+                  Username
+                </Label>
+                <Input
+                  id="username"
+                  name="username"
+                  value={formData.username}
+                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                  placeholder="johndoe"
+                  className="input-premium"
+                />
+              </div>
+
+              {/* Email */}
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-surface-300">
+                  Email Address
+                </Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder="you@example.com"
+                  className="input-premium"
+                />
+              </div>
+
+              {/* Submit Button */}
+              <div className="flex items-center gap-3">
+                <Button
+                  type="submit"
+                  disabled={updateMutation.isPending}
+                  className="gap-2"
                 >
-                  {profile?.is_verified ? 'Verified' : 'Unverified'}
-                </span>
+                  {updateMutation.isPending ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="h-4 w-4" />
+                      Save Changes
+                    </>
+                  )}
+                </Button>
               </div>
-            </div>
-          </div>
-        </div>
+            </form>
+          </CardContent>
+        </Card>
+      </motion.div>
 
-        <div className="p-8">
-          {/* Account Information */}
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold text-foreground mb-4">
-                Account Information
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-sm text-muted-foreground">Email</label>
-                  <p className="text-foreground font-medium">{profile?.email}</p>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-sm text-muted-foreground">Username</label>
-                  <p className="text-foreground font-medium">@{profile?.username}</p>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-sm text-muted-foreground">Status</label>
-                  <p className="text-foreground font-medium">
-                    {profile?.is_active ? (
-                      <span className="text-green-600 dark:text-green-400">Active</span>
-                    ) : (
-                      <span className="text-red-600 dark:text-red-400">Inactive</span>
-                    )}
-                  </p>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-sm text-muted-foreground">Member Since</label>
-                  <p className="text-foreground font-medium">
-                    {formatDate(profile?.created_at)}
-                  </p>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-sm text-muted-foreground">Last Login</label>
-                  <p className="text-foreground font-medium">
-                    {formatDate(profile?.last_login)}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Bio */}
-            {profile?.bio && (
+      {/* Security Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-success-400" />
+              Security & Privacy
+            </CardTitle>
+            <CardDescription>
+              Manage your security preferences and account protection
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between p-4 rounded-xl bg-dark-800/50 border border-dark-700/50">
               <div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">Bio</h3>
-                <p className="text-foreground bg-background p-4 rounded-md border">
-                  {profile.bio}
-                </p>
+                <p className="text-sm font-medium text-white">Two-Factor Authentication</p>
+                <p className="text-xs text-surface-500">Add an extra layer of security</p>
               </div>
-            )}
-          </div>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Shield className="h-4 w-4" />
+                Enable
+              </Button>
+            </div>
+            <div className="flex items-center justify-between p-4 rounded-xl bg-dark-800/50 border border-dark-700/50">
+              <div>
+                <p className="text-sm font-medium text-white">Change Password</p>
+                <p className="text-xs text-surface-500">Update your account password</p>
+              </div>
+              <Button variant="outline" size="sm" className="gap-2">
+                <Save className="h-4 w-4" />
+                Update
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
 
-          {/* Actions */}
-          <div className="mt-8 pt-6 border-t flex justify-between">
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors"
-            >
-              <LogOut size={20} />
-              Logout
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* Account Info Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <Card className="border-danger-500/20 bg-danger-500/5">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-danger-400">
+              <Activity className="h-5 w-5" />
+              Danger Zone
+            </CardTitle>
+            <CardDescription>
+              Irreversible actions that affect your account
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-between p-4 rounded-xl bg-danger-500/10 border border-danger-500/20">
+              <div>
+                <p className="text-sm font-medium text-white">Delete Account</p>
+                <p className="text-xs text-surface-500">Permanently delete your account and all data</p>
+              </div>
+              <Button variant="destructive" size="sm">
+                Delete Account
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   )
 }
