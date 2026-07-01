@@ -19,18 +19,19 @@ export default function Analytics() {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
-        <p className="text-gray-500 mt-1">
-          Platform metrics and insights
-        </p>
-      </div>
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+        <h1 className="page-title flex items-center gap-3">
+          <TrendingUp className="h-8 w-8 text-accent-400" />
+          Analytics Dashboard
+        </h1>
+        <p className="page-description">Platform metrics and insights</p>
+      </motion.div>
 
       {/* Error State */}
       {summaryError && (
-        <Card className="border-red-200 bg-red-50">
+        <Card className="border-danger-500/20 bg-danger-500/5">
           <CardContent className="pt-6">
-            <p className="text-red-700">Failed to load analytics data</p>
+            <p className="text-danger-400">Failed to load analytics data</p>
           </CardContent>
         </Card>
       )}
