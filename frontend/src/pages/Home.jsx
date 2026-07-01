@@ -12,9 +12,9 @@ import { Button } from "../components/ui/button"
 import { Skeleton } from "../components/ui/skeleton"
 import ErrorDisplay from "../components/ErrorDisplay"
 import {
-  Building2, TrendingUp, Skull, BarChart3, Globe, DollarSign, Clock,
-  AlertTriangle, CheckCircle2, Search, ArrowRight, Sparkles, Layers,
-  PieChart as PieChartIcon, Activity, Zap, Shield,
+  Building2, TrendingUp, Skull, DollarSign, Clock, BarChart3,
+  AlertTriangle, Search, ArrowRight, Sparkles, Layers,
+  PieChart as PieChartIcon, Activity, Shield,
 } from "lucide-react"
 
 const COLORS = {
@@ -71,15 +71,6 @@ function PieTooltip({ active, payload }) {
 }
 
 function StatCard({ icon: Icon, label, value, subvalue, trend, color = "primary" }) {
-  const colorMap = {
-    primary: "from-primary-500 to-primary-600",
-    red: "from-red-500 to-red-600",
-    amber: "from-amber-500 to-amber-600",
-    emerald: "from-emerald-500 to-emerald-600",
-    indigo: "from-indigo-500 to-indigo-600",
-    purple: "from-purple-500 to-purple-600",
-    blue: "from-blue-500 to-blue-600",
-  }
   const iconColorMap = {
     primary: "text-primary-600 bg-primary-50",
     red: "text-red-600 bg-red-50",

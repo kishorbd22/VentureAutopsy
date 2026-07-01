@@ -1,5 +1,3 @@
-import React from 'react'
-
 /**
  * KPI Card Component
  * Displays key performance indicators with icon, label, and value

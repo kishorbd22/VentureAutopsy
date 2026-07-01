@@ -1,10 +1,8 @@
-import React from 'react'
-
 /**
  * Similar Startup Card Component
  * Displays information about similar failed startups
  */
-export default function SimilarStartupCard({ startup, index }) {
+export default function SimilarStartupCard({ startup }) {
   const getSeverityBadge = (score) => {
     if (score >= 6) return { label: 'High Match', color: 'bg-red-100 text-red-800 border-red-200' }
     if (score >= 4) return { label: 'Medium Match', color: 'bg-orange-100 text-orange-800 border-orange-200' }

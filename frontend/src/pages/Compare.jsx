@@ -1,16 +1,13 @@
 import { useState, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useStartups } from "../hooks/useStartups"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card"
+import { Card, CardContent } from "../components/ui/card"
 import { Badge } from "../components/ui/badge"
-import { Button } from "../components/ui/button"
-import { Separator } from "../components/ui/separator"
 import { Skeleton } from "../components/ui/skeleton"
 import ErrorDisplay from "../components/ErrorDisplay"
 import {
   Search,
   X,
-  Building2,
   Globe,
   DollarSign,
   Users,
@@ -18,19 +15,12 @@ import {
   AlertTriangle,
   Skull,
   BarChart3,
-  ArrowRight,
   Layers,
   GitCompare,
   CalendarDays,
-  ExternalLink,
   CheckCircle2,
   MinusCircle,
 } from "lucide-react"
-
-const stageOrder = [
-  "Pre-Seed", "Seed", "Series A", "Series B",
-  "Series C", "Series D", "Series E", "Series E+",
-]
 
 function useDebouncedValue(value, delay = 300) {
   const [debounced, setDebounced] = useState(value)

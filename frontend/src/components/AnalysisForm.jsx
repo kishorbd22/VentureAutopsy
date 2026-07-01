@@ -16,8 +16,6 @@ import {
   Loader2,
   Sparkles,
 } from "lucide-react"
-import { cn } from "../lib/utils"
-
 const stageOptions = [
   { value: "", label: "Select Stage" },
   { value: "Pre-Seed", label: "Pre-Seed" },

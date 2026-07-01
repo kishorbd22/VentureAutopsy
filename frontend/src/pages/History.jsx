@@ -19,7 +19,6 @@ import {
   Trash,
   FlaskConical,
   Eye,
-  RotateCcw,
 } from "lucide-react"
 
 const riskConfig = {

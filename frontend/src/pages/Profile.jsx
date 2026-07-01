@@ -1,12 +1,8 @@
-import { useState, useEffect } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { User, LogOut } from 'lucide-react'
 import api from '../services/api'
 
 export default function Profile() {
-  const [error, setError] = useState('')
-  const queryClient = useQueryClient()
-
   const { data: profile, isLoading, error: profileError } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {

@@ -1,5 +1,3 @@
-import React from 'react'
-
 /**
  * Risk Gauge Component
  * Circular gauge showing risk score from 0-100

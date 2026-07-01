@@ -128,7 +128,7 @@ export default function Login() {
           {/* Register Link */}
           <div className="mt-6 text-center text-sm">
             <p className="text-muted-foreground">
-              Don't have an account?{' '}
+              Don{'\u2019'}t have an account?{' '}
               <Link
                 to="/register"
                 className="text-primary hover:underline font-medium"

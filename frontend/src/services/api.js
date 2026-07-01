@@ -144,11 +144,146 @@ export const fetchDeathCauses = () =>
 // ─── Analytics endpoints ─────────────────────────────────────────
 
 /**
- * Fetch analytics data
- * @param {Object} params
- * @returns {Promise<Object>}
+ * Get analytics summary including total analyses, users, popular industries, etc.
+ * GET /analytics/summary
+ * @returns {Promise<{total_analyses: number, total_users: number, popular_industries: Array, average_score: number, daily_users: number, daily_analyses: number}>}
  */
-export const fetchAnalytics = (params = {}) =>
-  api.get('/analytics/', { params }).then((res) => res.data)
+export const getAnalyticsSummary = () =>
+  api.get('/analytics/summary').then((res) => res.data)
+
+/**
+ * Get daily analytics data for past N days
+ * GET /analytics/daily?days=30
+ * @param {number} days - Number of days to fetch (1-365)
+ * @returns {Promise<Array<{date: string, analyses: number, users: number, avg_score: number}>>}
+ */
+export const getDailyAnalytics = (days = 30) =>
+  api.get(`/analytics/daily?days=${days}`).then((res) => res.data)
+
+/**
+ * Get industry statistics
+ * GET /analytics/industries
+ * @returns {Promise<Array<{industry: string, count: number, avg_risk_score: number, avg_lifespan: number|null, avg_funding: number|null}>>}
+ */
+export const getIndustryStats = () =>
+  api.get('/analytics/industries').then((res) => res.data)
+
+// ─── AI endpoints ─────────────────────────────────────────────────
+
+/**
+ * Generate comprehensive AI report for an analysis
+ * GET /ai/report/{analysisId}
+ * @param {number} analysisId
+ * @returns {Promise<{success: boolean, data: Object, error: string|null}>}
+ */
+export const generateAIReport = (analysisId) =>
+  api.get(`/ai/report/${analysisId}`).then((res) => res.data)
+
+/**
+ * Chat with AI about an analysis
+ * POST /ai/chat/{analysisId}
+ * @param {number} analysisId
+ * @param {{message: string, conversation_history?: Array<{role: string, content: string}>}} payload
+ * @returns {Promise<{success: boolean, data: Object, error: string|null}>}
+ */
+export const chatWithAnalysis = (analysisId, payload) =>
+  api.post(`/ai/chat/${analysisId}`, payload).then((res) => res.data)
+
+/**
+ * Simulate a what-if scenario
+ * POST /ai/simulate/{analysisId}
+ * @param {number} analysisId
+ * @param {{scenario_type: string, params: Object}} payload
+ * @returns {Promise<{success: boolean, data: Object, error: string|null}>}
+ */
+export const simulateScenario = (analysisId, payload) =>
+  api.post(`/ai/simulate/${analysisId}`, payload).then((res) => res.data)
+
+/**
+ * Get AI-generated suggestions for an analysis
+ * GET /ai/suggestions/{analysisId}
+ * @param {number} analysisId
+ * @returns {Promise<{success: boolean, data: Object, error: string|null}>}
+ */
+export const getAISuggestions = (analysisId) =>
+  api.get(`/ai/suggestions/${analysisId}`).then((res) => res.data)
+
+// ─── Admin endpoints ──────────────────────────────────────────────
+
+/**
+ * Get admin dashboard stats
+ * GET /admin/dashboard/stats
+ * @returns {Promise<{success: boolean, data: Object, error: string|null}>}
+ */
+export const getAdminStats = () =>
+  api.get('/admin/dashboard/stats').then((res) => res.data)
+
+/**
+ * Get paginated users list with search
+ * GET /admin/users?page=1&page_size=20&search=...
+ * @param {Object} params
+ * @returns {Promise<{success: boolean, data: Object, error: string|null}>}
+ */
+export const getAdminUsers = (params = {}) =>
+  api.get('/admin/users', { params }).then((res) => res.data)
+
+/**
+ * Delete a user
+ * DELETE /admin/users/{userId}
+ * @param {number} userId
+ * @returns {Promise<{success: boolean, message: string}>}
+ */
+export const deleteAdminUser = (userId) =>
+  api.delete(`/admin/users/${userId}`).then((res) => res.data)
+
+/**
+ * Update user admin role
+ * PUT /admin/users/{userId}/role?is_admin=true
+ * @param {number} userId
+ * @param {boolean} isAdmin
+ * @returns {Promise<{success: boolean, message: string}>}
+ */
+export const updateUserRole = (userId, isAdmin) =>
+  api.put(`/admin/users/${userId}/role`, null, { params: { is_admin: isAdmin } }).then((res) => res.data)
+
+/**
+ * Get paginated startups list with search
+ * GET /admin/startups?page=1&page_size=20&search=...&industry=...
+ * @param {Object} params
+ * @returns {Promise<{success: boolean, data: Object, error: string|null}>}
+ */
+export const getAdminStartups = (params = {}) =>
+  api.get('/admin/startups', { params }).then((res) => res.data)
+
+/**
+ * Delete a startup
+ * DELETE /admin/startups/{startupId}
+ * @param {number} startupId
+ * @returns {Promise<{success: boolean, message: string}>}
+ */
+export const deleteAdminStartup = (startupId) =>
+  api.delete(`/admin/startups/${startupId}`).then((res) => res.data)
+
+/**
+ * Import CSV file
+ * POST /admin/import/csv
+ * @param {File} file
+ * @returns {Promise<{success: boolean, data: Object, message: string}>}
+ */
+export const importCSV = (file) => {
+  const formData = new FormData()
+  formData.append('file', file)
+  return api.post('/admin/import/csv', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  }).then((res) => res.data)
+}
+
+/**
+ * Get sample CSV template
+ * GET /admin/import/sample-template
+ * @returns {Promise<{success: boolean, data: string, filename: string}>}
+ */
+export const getSampleTemplate = () =>
+  api.get('/admin/import/sample-template').then((res) => res.data)
 
 export default api

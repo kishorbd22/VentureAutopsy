@@ -64,7 +64,6 @@ function getSeverityBadge(severity) {
 
 function RiskScoreCard({ score, riskLevel, explanations = [] }) {
   const config = riskConfig[riskLevel] || riskConfig.Medium
-  const Icon = config.icon
   const scorePercent = Math.min(score, 100)
 
   return (
@@ -265,7 +264,6 @@ export default function AnalyzeStartup() {
   const { addEntry } = useAnalysisHistory()
   const [result, setResult] = useState(null)
   const [submittedName, setSubmittedName] = useState("")
-  const [lastInput, setLastInput] = useState(null)
 
   const handleSubmit = async (data) => {
     try {
@@ -274,7 +272,6 @@ export default function AnalyzeStartup() {
 
       setResult(resultData)
       setSubmittedName(data.name || "This Startup")
-      setLastInput(data)
 
       // Persist to history
       addEntry({
@@ -304,7 +301,7 @@ export default function AnalyzeStartup() {
           Startup Analysis
         </h1>
         <p className="text-gray-500 max-w-2xl">
-          Analyze your startup's risk profile based on historical data from failed startups.
+          Analyze your startup{'\u2019'}s risk profile based on historical data from failed startups.
           Our AI compares your inputs against thousands of data points to predict failure patterns.
         </p>
       </motion.div>
@@ -446,7 +443,7 @@ export default function AnalyzeStartup() {
               </div>
               <h3 className="text-lg font-semibold text-gray-700 mb-1">No Analysis Yet</h3>
               <p className="text-sm text-gray-400 max-w-sm">
-                Fill in your startup details on the left and click "Analyze Startup" to see the risk assessment here.
+                Fill in your startup details on the left and click &ldquo;Analyze Startup&rdquo; to see the risk assessment here.
               </p>
             </motion.div>
           )}

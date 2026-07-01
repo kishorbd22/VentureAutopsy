@@ -1,10 +1,8 @@
-import React from 'react'
-
 /**
  * Risk Factor Card Component
  * Displays individual risk factors with severity indicator
  */
-export default function RiskFactorCard({ factor, index }) {
+export default function RiskFactorCard({ factor }) {
   const severityConfig = {
     critical: {
       bg: 'bg-red-50',

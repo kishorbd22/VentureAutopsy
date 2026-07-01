@@ -1,5 +1,3 @@
-import React from 'react'
-
 /**
  * Progress Bar Component
  * Animated progress bar with customizable color and label

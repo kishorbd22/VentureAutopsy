@@ -14,6 +14,13 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Profile from './pages/Profile'
 import ProtectedRoute from './components/ProtectedRoute'
+import AdminLayout from './components/AdminLayout'
+import AdminDashboard from './pages/admin/AdminDashboard'
+import AdminUsers from './pages/admin/AdminUsers'
+import AdminStartups from './pages/admin/AdminStartups'
+import AdminImport from './pages/admin/AdminImport'
+import AdminAnalytics from './pages/admin/AdminAnalytics'
+import AdminSettings from './pages/admin/AdminSettings'
 import './App.css'
 
 function App() {
@@ -45,6 +52,17 @@ function App() {
                   <Route path="/history" element={<History />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/dashboard" element={<Home />} />
+
+                  {/* Admin Routes */}
+                  <Route path="/admin" element={<AdminLayout />}>
+                    <Route index element={<AdminDashboard />} />
+                    <Route path="users" element={<AdminUsers />} />
+                    <Route path="startups" element={<AdminStartups />} />
+                    <Route path="import" element={<AdminImport />} />
+                    <Route path="analytics" element={<AdminAnalytics />} />
+                    <Route path="settings" element={<AdminSettings />} />
+                  </Route>
+
                   <Route path="*" element={<Navigate to="/home" replace />} />
                 </Routes>
               </Layout>

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import {
   ChevronDown, Search, BarChart3, Shield, Zap, Globe, TrendingUp,
-  Building2, Users, ArrowRight, Menu, X, Github, Twitter, Linkedin,
+  Building2, ArrowRight, Menu, X, Github, Twitter, Linkedin,
   CheckCircle2, HelpCircle, Star
 } from 'lucide-react'
 import { Button } from '../components/ui/button'
@@ -350,7 +350,7 @@ export default function Landing() {
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             <Badge className="mb-6 px-4 py-1.5 text-sm font-medium bg-white/80 backdrop-blur border border-gray-200">
-              🚀 Now in Public Beta
+              {'\u{1F680}'} Now in Public Beta
             </Badge>
           </motion.div>
 
@@ -360,10 +360,10 @@ export default function Landing() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 tracking-tight mb-6"
           >
-            Learn Why Startups Fail
+            Learn from 50,000+
             <br />
             <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              Before Yours Does
+              Startup Failures
             </span>
           </motion.h1>
 
@@ -433,7 +433,7 @@ export default function Landing() {
                     <Star key={idx} className="h-4 w-4 fill-current" />
                   ))}
                 </div>
-                <p className="text-sm font-medium text-gray-900">"{t.text}"</p>
+                <p className="text-sm font-medium text-gray-900">{'\u201C'}{t.text}{'\u201D'}</p>
                 <p className="text-xs text-gray-500">{t.name}</p>
               </motion.div>
             ))}
@@ -495,7 +495,7 @@ export default function Landing() {
           >
             <h2 className="text-4xl font-bold text-gray-900 mb-4">How It Works</h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Three simple steps to gain invaluable insights into your startup's risk profile.
+              Three simple steps to gain invaluable insights into your startup{'\u2019'}s risk profile.
             </p>
           </motion.div>
 
@@ -528,6 +528,78 @@ export default function Landing() {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Screenshots/Demo Section */}
+      <section id="screenshots" className="py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              See It In Action
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Powerful insights delivered through an intuitive interface
+            </p>
+          </motion.div>
+
+          <motion.div
+            variants={stagger}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            className="space-y-8"
+          >
+            {/* Dashboard Preview */}
+            <motion.div variants={fadeIn} className="rounded-2xl overflow-hidden shadow-2xl border border-gray-200">
+              <div className="bg-gray-900 px-4 py-3 flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                <span className="ml-4 text-gray-400 text-sm">Analytics Dashboard</span>
+              </div>
+              <div className="bg-gray-100 p-8">
+                <div className="bg-white rounded-lg shadow-lg p-6">
+                  <div className="grid grid-cols-4 gap-4 mb-6">
+                    <div className="bg-blue-50 rounded-lg p-4 h-24"></div>
+                    <div className="bg-green-50 rounded-lg p-4 h-24"></div>
+                    <div className="bg-purple-50 rounded-lg p-4 h-24"></div>
+                    <div className="bg-orange-50 rounded-lg p-4 h-24"></div>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-6 h-64"></div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Analysis Tool Preview */}
+            <motion.div variants={fadeIn} className="rounded-2xl overflow-hidden shadow-2xl border border-gray-200">
+              <div className="bg-gray-900 px-4 py-3 flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                <span className="ml-4 text-gray-400 text-sm">Analysis Tool</span>
+              </div>
+              <div className="bg-gray-100 p-8">
+                <div className="bg-white rounded-lg shadow-lg p-6">
+                  <div className="space-y-4">
+                    <div className="h-12 bg-gray-100 rounded"></div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="h-20 bg-gray-100 rounded"></div>
+                      <div className="h-20 bg-gray-100 rounded"></div>
+                    </div>
+                    <div className="h-32 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg flex items-center justify-center">
+                      <div className="w-32 h-32 rounded-full border-8 border-indigo-200"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
@@ -711,7 +783,7 @@ export default function Landing() {
 
           <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-sm text-gray-400">
-              © {new Date().getFullYear()} Venture Autopsy. All rights reserved.
+              {'\u00A9'} {new Date().getFullYear()} Venture Autopsy. All rights reserved.
             </p>
             <div className="flex items-center gap-2 text-sm text-gray-400">
               <CheckCircle2 className="h-4 w-4 text-green-500" />
