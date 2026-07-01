@@ -2,189 +2,160 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import {
-  ChevronDown, Search, BarChart3, Shield, Zap, Globe, TrendingUp,
+  Search, BarChart3, Shield, Zap, Globe, TrendingUp,
   Building2, ArrowRight, Menu, X, Github, Twitter, Linkedin,
-  CheckCircle2, HelpCircle, Star
+  CheckCircle2, ChevronDown, Sparkles, Brain, Activity,
+  LineChart, Database, Target, ChevronRight, Star,
 } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Badge } from '../components/ui/badge'
-import { Card } from '../components/ui/card'
 
-const fadeIn = {
-  hidden: { opacity: 0, y: 20 },
+const fadeInUp = {
+  hidden: { opacity: 0, y: 30 },
   visible: (i = 0) => ({
     opacity: 1,
     y: 0,
-    transition: {
-      delay: i * 0.1,
-      duration: 0.6,
-      ease: [0.22, 1, 0.36, 1],
-    },
+    transition: { delay: i * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] },
   }),
 }
 
 const stagger = {
   hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.15,
-    },
-  },
+  show: { opacity: 1, transition: { staggerChildren: 0.12 } },
 }
 
 const scaleIn = {
   hidden: { opacity: 0, scale: 0.9 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: {
-      duration: 0.5,
-      ease: [0.22, 1, 0.36, 1],
-    },
-  },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
 }
 
 const features = [
   {
-    icon: Search,
+    icon: Brain,
     title: 'AI-Powered Analysis',
-    description: 'Analyze startup failure patterns using advanced AI to identify risks before they become critical.',
-    color: 'from-blue-500 to-cyan-500',
+    description: 'Advanced machine learning analyzes startup failure patterns to identify risks before they become critical.',
+    gradient: 'from-accent-500 to-cyan-500',
+    stat: '95%',
+    statLabel: 'Accuracy Rate',
   },
   {
-    icon: BarChart3,
+    icon: Activity,
     title: 'Predictive Risk Scoring',
-    description: 'Get actionable risk scores based on historical data from thousands of failed startups.',
-    color: 'from-amber-500 to-orange-500',
+    description: 'Get actionable risk scores based on historical data from thousands of failed startups across all industries.',
+    gradient: 'from-warning-500 to-amber-500',
+    stat: '50K+',
+    statLabel: 'Case Studies',
+  },
+  {
+    icon: Database,
+    title: 'Comprehensive Database',
+    description: 'Access a growing database of startup post-mortems with detailed metadata, financials, and failure causes.',
+    gradient: 'from-success-500 to-emerald-500',
+    stat: '12K',
+    statLabel: 'Risk Factors',
+  },
+  {
+    icon: LineChart,
+    title: 'Trend Visualization',
+    description: 'Explore interactive charts showing failure trends over time across industries, stages, and geographies.',
+    gradient: 'from-purple-500 to-pink-500',
+    stat: '98%',
+    statLabel: 'Satisfaction',
+  },
+  {
+    icon: Target,
+    title: 'Strategic Recommendations',
+    description: 'Receive tailored recommendations to mitigate identified risks and avoid common failure patterns.',
+    gradient: 'from-danger-500 to-rose-500',
+    stat: '10K+',
+    statLabel: 'Founders Helped',
   },
   {
     icon: Globe,
     title: 'Industry Insights',
-    description: 'Understand failure patterns across industries, stages, and geographies.',
-    color: 'from-emerald-500 to-teal-500',
-  },
-  {
-    icon: Shield,
-    title: 'Strategic Recommendations',
-    description: 'Receive tailored recommendations to mitigate identified risks.',
-    color: 'from-purple-500 to-pink-500',
-  },
-  {
-    icon: TrendingUp,
-    title: 'Trend Visualization',
-    description: 'Explore interactive charts showing failure trends over time.',
-    color: 'from-red-500 to-rose-500',
-  },
-  {
-    icon: Building2,
-    title: 'Comprehensive Database',
-    description: 'Access a growing database of startup post-mortems with detailed metadata.',
-    color: 'from-indigo-500 to-violet-500',
+    description: 'Understand failure patterns across industries, funding stages, and geographic regions worldwide.',
+    gradient: 'from-brand-500 to-violet-500',
+    stat: '20+',
+    statLabel: 'Industries',
   },
 ]
 
 const steps = [
   {
     number: '01',
-    title: 'Input Your Startup Data',
+    title: 'Input Your Data',
     description: 'Provide basic information about your venture including industry, funding stage, and key metrics.',
     icon: Search,
   },
   {
     number: '02',
-    title: 'AI Analysis',
+    title: 'AI Analysis Engine',
     description: 'Our engine compares your profile against thousands of historical failures to identify risk factors.',
-    icon: Zap,
+    icon: Brain,
   },
   {
     number: '03',
     title: 'Get Actionable Insights',
-    description: 'Receive a detailed report with risk scores, recommendations, and strategic guidance.',
+    description: 'Receive a detailed report with risk scores, prioritized recommendations, and strategic guidance.',
     icon: BarChart3,
   },
 ]
 
-const testimonials = [
-  { name: 'TechCrunch', text: 'The future of startup intelligence' },
-  { name: ' Forbes', text: 'A must-have tool for founders' },
-  { name: 'Product Hunt', text: '#1 Product of the Month' },
-  { name: 'Y Combinator', text: 'Recommended reading for all founders' },
+const stats = [
+  { value: '50,000+', label: 'Startups Analyzed', suffix: '' },
+  { value: '99.9', label: 'Uptime', suffix: '%' },
+  { value: '12', label: 'Industries Covered', suffix: '+' },
+  { value: '4.9', label: 'User Rating', suffix: '/5' },
 ]
 
-const faqs = [
-  {
-    question: 'How does Venture Autopsy work?',
-    answer: 'Venture Autopsy uses AI to analyze your startup\'s profile against a comprehensive database of failed companies. It identifies patterns, calculates risk scores, and provides actionable recommendations to help you avoid common pitfalls.',
-  },
-  {
-    question: 'Is my data secure?',
-    answer: 'Yes, we take data security seriously. All data is encrypted in transit and at rest. We do not share your proprietary information with third parties. Your competitive insights remain confidential.',
-  },
-  {
-    question: 'What industries do you cover?',
-    answer: 'We cover all major industries including SaaS, FinTech, HealthTech, E-commerce, Consumer Tech, Enterprise, and more. Our database is continuously growing with new post-mortems.',
-  },
-  {
-    question: 'How accurate are the risk predictions?',
-    answer: 'Our models are trained on thousands of real startup failure cases. While no prediction can be 100% accurate, our risk scores have been validated against known outcomes and provide statistically significant early warning signals.',
-  },
-  {
-    question: 'Can I export the analysis reports?',
-    answer: 'Yes, you can export detailed analysis reports in PDF and CSV formats. Reports include risk breakdowns, industry comparisons, and prioritized action items.',
-  },
-]
-
-function AnimatedCounter({ target, suffix = '' }) {
-  const [count, setCount] = useState(0)
-
-  const animate = () => {
-    const duration = 2000
-    const steps = 60
-    const increment = target / steps
-    let current = 0
-    const timer = setInterval(() => {
-      current += increment
-      if (current >= target) {
-        setCount(target)
-        clearInterval(timer)
-      } else {
-        setCount(Math.floor(current))
-      }
-    }, duration / steps)
-  }
-
+function FeatureCard({ feature, index }) {
   return (
-    <span
-      className="text-4xl font-bold text-gray-900"
-      onMouseEnter={animate}
+    <motion.div
+      variants={scaleIn}
+      className="group relative"
     >
-      {count.toLocaleString()}{suffix}
-    </span>
+      <div className="relative h-full p-6 rounded-2xl bg-elevation-2 border border-dark-700/50 transition-all duration-300 hover:border-accent-500/20 hover:shadow-glow hover:-translate-y-0.5">
+        {/* Gradient icon */}
+        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
+          <feature.icon className="w-6 h-6 text-white" />
+        </div>
+
+        {/* Content */}
+        <h3 className="text-lg font-semibold text-white mb-2">{feature.title}</h3>
+        <p className="text-sm text-surface-400 leading-relaxed">{feature.description}</p>
+
+        {/* Stat */}
+        <div className="mt-4 pt-4 border-t border-dark-700/50 flex items-center justify-between">
+          <span className="text-2xl font-bold text-gradient">{feature.stat}</span>
+          <span className="text-xs text-surface-500">{feature.statLabel}</span>
+        </div>
+
+        {/* Hover glow */}
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-accent-500/0 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+      </div>
+    </motion.div>
   )
 }
 
 function FAQItem({ question, answer, isOpen, onClick }) {
   return (
     <motion.div
-      initial={fadeIn.hidden}
-      whileInView={fadeIn.visible}
+      initial={{ opacity: 0, y: 10 }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="border border-gray-200 rounded-xl overflow-hidden"
+      className="rounded-2xl bg-elevation-2 border border-dark-700/50 overflow-hidden transition-all duration-300 hover:border-dark-600/50"
     >
       <button
         onClick={onClick}
-        className="w-full flex items-center justify-between p-6 text-left hover:bg-gray-50 transition-colors"
+        className="w-full flex items-center justify-between p-5 text-left gap-4"
       >
-        <span className="font-semibold text-gray-900 flex items-center gap-3">
-          <HelpCircle className="h-5 w-5 text-primary-500 flex-shrink-0" />
-          {question}
-        </span>
+        <span className="text-sm font-medium text-white">{question}</span>
         <motion.div
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.2 }}
+          className="flex-shrink-0"
         >
-          <ChevronDown className="h-5 w-5 text-gray-400" />
+          <ChevronDown className="w-4 h-4 text-surface-500" />
         </motion.div>
       </button>
       <AnimatePresence>
@@ -193,10 +164,10 @@ function FAQItem({ question, answer, isOpen, onClick }) {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
             className="overflow-hidden"
           >
-            <p className="px-6 pb-6 text-gray-600 leading-relaxed">
+            <p className="px-5 pb-5 text-sm text-surface-400 leading-relaxed border-t border-dark-700/50 pt-4">
               {answer}
             </p>
           </motion.div>
@@ -210,39 +181,40 @@ export default function Landing() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [openFAQ, setOpenFAQ] = useState(null)
   const { scrollY } = useScroll()
-  const heroOpacity = useTransform(scrollY, [0, 500], [1, 0.3])
-  const heroScale = useTransform(scrollY, [0, 500], [1, 0.95])
+  const heroOpacity = useTransform(scrollY, [0, 400], [1, 0.2])
+  const heroScale = useTransform(scrollY, [0, 400], [1, 0.95])
 
-  const toggleFAQ = (index) => {
-    setOpenFAQ(openFAQ === index ? null : index)
-  }
+  const toggleFAQ = (index) => setOpenFAQ(openFAQ === index ? null : index)
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navigation */}
+    <div className="min-h-screen bg-dark-950 text-white">
+      {/* ─── NAVIGATION ─── */}
       <motion.nav
-        initial={{ y: -100 }}
+        initial={{ y: -80 }}
         animate={{ y: 0 }}
-        className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100"
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        className="fixed top-0 left-0 right-0 z-50 bg-dark-950/80 backdrop-blur-xl border-b border-dark-800/50"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <Link to="/" className="flex items-center gap-2">
-              <span className="text-2xl">🔬</span>
-              <span className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                Venture Autopsy
+            <Link to="/" className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-gradient-premium flex items-center justify-center">
+                <Activity className="w-4 h-4 text-white" />
+              </div>
+              <span className="text-lg font-bold text-white">
+                Venture <span className="text-accent-400">Autopsy</span>
               </span>
             </Link>
 
             {/* Desktop nav */}
             <div className="hidden md:flex items-center gap-8">
-              <Link to="#features" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+              <Link to="#features" className="text-sm text-surface-400 hover:text-white transition-colors">
                 Features
               </Link>
-              <Link to="#how-it-works" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+              <Link to="#how-it-works" className="text-sm text-surface-400 hover:text-white transition-colors">
                 How It Works
               </Link>
-              <Link to="#faq" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">
+              <Link to="#faq" className="text-sm text-surface-400 hover:text-white transition-colors">
                 FAQ
               </Link>
               <Link to="/login">
@@ -250,7 +222,7 @@ export default function Landing() {
               </Link>
               <Link to="/register">
                 <Button size="sm" className="gap-2">
-                  Get Started <ArrowRight className="h-4 w-4" />
+                  Get Started <ArrowRight className="w-3.5 h-3.5" />
                 </Button>
               </Link>
             </div>
@@ -258,9 +230,9 @@ export default function Landing() {
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-gray-100"
+              className="md:hidden p-2 rounded-xl hover:bg-dark-800 transition-colors"
             >
-              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
@@ -272,189 +244,161 @@ export default function Landing() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-white border-b border-gray-100"
+              className="md:hidden bg-dark-900 border-b border-dark-800"
             >
               <div className="px-4 py-4 space-y-3">
-                <Link to="#features" className="block text-sm font-medium text-gray-600 hover:text-gray-900">
-                  Features
-                </Link>
-                <Link to="#how-it-works" className="block text-sm font-medium text-gray-600 hover:text-gray-900">
-                  How It Works
-                </Link>
-                <Link to="#faq" className="block text-sm font-medium text-gray-600 hover:text-gray-900">
-                  FAQ
-                </Link>
-                <Link to="/login" className="block">
-                  <Button variant="ghost" size="sm" className="w-full justify-start">Sign In</Button>
-                </Link>
-                <Link to="/register" className="block">
-                  <Button size="sm" className="w-full">Get Started</Button>
-                </Link>
+                <Link to="#features" className="block text-sm text-surface-400 hover:text-white py-2">Features</Link>
+                <Link to="#how-it-works" className="block text-sm text-surface-400 hover:text-white py-2">How It Works</Link>
+                <Link to="#faq" className="block text-sm text-surface-400 hover:text-white py-2">FAQ</Link>
+                <div className="pt-2 space-y-2">
+                  <Link to="/login" className="block"><Button variant="ghost" size="sm" className="w-full justify-start">Sign In</Button></Link>
+                  <Link to="/register" className="block"><Button size="sm" className="w-full">Get Started</Button></Link>
+                </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </motion.nav>
 
-      {/* Hero Section */}
+      {/* ─── HERO SECTION ─── */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
-        {/* Animated gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        {/* Background effects */}
+        <div className="absolute inset-0 bg-dark-950">
+          {/* Grid pattern */}
+          <div className="absolute inset-0 bg-grid opacity-30" />
+          
+          {/* Gradient orbs */}
           <motion.div
-            animate={{
-              scale: [1, 1.1, 1],
-              opacity: [0.3, 0.5, 0.3],
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-            className="absolute top-0 -left-4 w-96 h-96 bg-primary-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30"
+            animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.25, 0.15] }}
+            transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut' }}
+            className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-accent-500/20 blur-[120px]"
           />
           <motion.div
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.3, 0.4, 0.3],
-            }}
-            transition={{
-              duration: 10,
-              repeat: Infinity,
-              ease: 'easeInOut',
-              delay: 2,
-            }}
-            className="absolute top-0 -right-4 w-96 h-96 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30"
+            animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.2, 0.1] }}
+            transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
+            className="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-purple-500/20 blur-[100px]"
           />
           <motion.div
-            animate={{
-              scale: [1, 1.15, 1],
-              opacity: [0.2, 0.4, 0.2],
-            }}
-            transition={{
-              duration: 9,
-              repeat: Infinity,
-              ease: 'easeInOut',
-              delay: 4,
-            }}
-            className="absolute -bottom-8 left-20 w-96 h-96 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30"
+            animate={{ scale: [1, 1.15, 1], opacity: [0.08, 0.15, 0.08] }}
+            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 5 }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] rounded-full bg-brand-500/10 blur-[150px]"
           />
+
+          {/* Particle dots */}
+          <div className="absolute inset-0 bg-dots" />
         </div>
 
         <motion.div
           style={{ opacity: heroOpacity, scale: heroScale }}
-          className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
+          className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center"
         >
+          {/* Badge */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <Badge className="mb-6 px-4 py-1.5 text-sm font-medium bg-white/80 backdrop-blur border border-gray-200">
-              {'\u{1F680}'} Now in Public Beta
+            <Badge variant="info" className="mb-6 px-4 py-1.5 text-sm">
+              <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+              Now in Public Beta — Free to use
             </Badge>
           </motion.div>
 
+          {/* Headline */}
           <motion.h1
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-gray-900 tracking-tight mb-6"
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight mb-6"
           >
-            Learn from 50,000+
+            Learn from{' '}
+            <span className="text-gradient">50,000+</span>
             <br />
-            <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-              Startup Failures
-            </span>
+            <span className="text-gradient">Startup Failures</span>
           </motion.h1>
 
+          {/* Subtitle */}
           <motion.p
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="mt-6 text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed"
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="mt-6 text-lg sm:text-xl text-surface-400 max-w-3xl mx-auto leading-relaxed"
           >
-            Venture Autopsy uses AI to analyze startup failure patterns, predict risks,
-            and give you the insights you need to build a successful company.
+            Venture Autopsy uses advanced AI to analyze startup failure patterns, predict risks,
+            and give you the intelligence you need to build a successful company.
           </motion.p>
 
+          {/* CTA Buttons */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.8 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
             className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Link to="/analyze">
-              <Button size="lg" className="gap-2 text-base px-8 h-12 shadow-lg hover:shadow-xl transition-all">
-                <Search className="h-5 w-5" />
-                Analyze Startup
+              <Button size="xl" className="gap-3 shadow-glow hover:shadow-glow-lg transition-all">
+                <Search className="w-5 h-5" />
+                Analyze Your Startup
+                <ArrowRight className="w-5 h-5" />
               </Button>
             </Link>
-            <Link to="/dashboard">
-              <Button variant="outline" size="lg" className="gap-2 text-base px-8 h-12">
-                <BarChart3 className="h-5 w-5" />
+            <Link to="/register">
+              <Button variant="outline" size="xl" className="gap-3">
+                <BarChart3 className="w-5 h-5" />
                 View Dashboard
               </Button>
             </Link>
           </motion.div>
 
+          {/* Stats row */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.0 }}
+            className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8"
+          >
+            {stats.map((stat, i) => (
+              <div key={i} className="text-center">
+                <div className="text-3xl font-bold text-white mb-1">{stat.value}</div>
+                <div className="text-sm text-surface-500">{stat.label}</div>
+              </div>
+            ))}
+          </motion.div>
+
+          {/* Scroll indicator */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
-            className="mt-20"
+            transition={{ delay: 1.5 }}
+            className="mt-16"
           >
-            <ChevronDown className="h-6 w-6 text-gray-400 mx-auto animate-bounce" />
+            <motion.div
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <ChevronDown className="w-5 h-5 text-surface-600 mx-auto" />
+            </motion.div>
           </motion.div>
         </motion.div>
       </section>
 
-      {/* Trusted By Section */}
-      <section className="py-12 bg-gray-50 border-y border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-sm font-semibold text-gray-500 uppercase tracking-wider mb-8">
-            Trusted by innovative teams worldwide
-          </p>
-          <motion.div
-            variants={stagger}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-8"
-          >
-            {testimonials.map((t, i) => (
-              <motion.div
-                key={i}
-                variants={fadeIn}
-                custom={i}
-                className="flex flex-col items-center gap-2"
-              >
-                <div className="flex items-center gap-1 text-amber-500">
-                  {[...Array(5)].map((_, idx) => (
-                    <Star key={idx} className="h-4 w-4 fill-current" />
-                  ))}
-                </div>
-                <p className="text-sm font-medium text-gray-900">{'\u201C'}{t.text}{'\u201D'}</p>
-                <p className="text-xs text-gray-500">{t.name}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section id="features" className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* ─── FEATURES SECTION ─── */}
+      <section id="features" className="relative py-24 lg:py-32">
+        <div className="absolute inset-0 bg-gradient-to-b from-dark-950 via-dark-900/50 to-dark-950" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Everything you need to <span className="text-primary-600">de-risk</span> your startup
+            <Badge variant="info" className="mb-4">Features</Badge>
+            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+              Everything you need to{' '}
+              <span className="text-gradient">de-risk</span> your startup
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Powerful tools and insights to help you make informed decisions and avoid common pitfalls.
+            <p className="text-lg text-surface-400 max-w-2xl mx-auto">
+              Powerful tools and AI-driven insights to help you make informed decisions and avoid common pitfalls.
             </p>
           </motion.div>
 
@@ -462,40 +406,32 @@ export default function Landing() {
             variants={stagger}
             initial="hidden"
             whileInView="show"
-            viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            viewport={{ once: true, margin: "-100px" }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
             {features.map((feature, i) => (
-              <motion.div key={i} variants={scaleIn} custom={i}>
-                <Card className="h-full p-6 hover:shadow-xl transition-all duration-300 group border-0 shadow-md">
-                  <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${feature.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                    <feature.icon className="h-6 w-6 text-white" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    {feature.title}
-                  </h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    {feature.description}
-                  </p>
-                </Card>
-              </motion.div>
+              <FeatureCard key={i} feature={feature} index={i} />
             ))}
           </motion.div>
         </div>
       </section>
 
-      {/* How It Works */}
-      <section id="how-it-works" className="py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* ─── HOW IT WORKS ─── */}
+      <section id="how-it-works" className="relative py-24 lg:py-32">
+        <div className="absolute inset-0 bg-gradient-to-b from-dark-950 via-dark-900 to-dark-950" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">How It Works</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Three simple steps to gain invaluable insights into your startup{'\u2019'}s risk profile.
+            <Badge variant="info" className="mb-4">Process</Badge>
+            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+              How It <span className="text-gradient">Works</span>
+            </h2>
+            <p className="text-lg text-surface-400 max-w-2xl mx-auto">
+              Three simple steps to gain invaluable insights into your startup's risk profile.
             </p>
           </motion.div>
 
@@ -509,157 +445,88 @@ export default function Landing() {
                 transition={{ delay: i * 0.2 }}
                 className="relative"
               >
-                <Card className="h-full p-8 hover:shadow-xl transition-all duration-300 border-0 shadow-md">
-                  <div className="text-6xl font-extrabold text-gray-100 absolute top-4 right-6">
+                {/* Connector line */}
+                {i < steps.length - 1 && (
+                  <div className="hidden lg:block absolute top-24 left-[60%] w-[80%] h-px bg-gradient-to-r from-accent-500/50 to-transparent" />
+                )}
+                
+                <div className="relative p-8 rounded-2xl bg-elevation-2 border border-dark-700/50 h-full">
+                  <div className="text-6xl font-bold text-dark-700 absolute top-4 right-6 select-none">
                     {step.number}
                   </div>
                   <div className="relative">
-                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center mb-6 shadow-lg">
-                      <step.icon className="h-7 w-7 text-white" />
+                    <div className="w-14 h-14 rounded-xl bg-gradient-premium flex items-center justify-center mb-6 shadow-glow">
+                      <step.icon className="w-7 h-7 text-white" />
                     </div>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                      {step.title}
-                    </h3>
-                    <p className="text-gray-600 leading-relaxed">
-                      {step.description}
-                    </p>
+                    <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
+                    <p className="text-surface-400 leading-relaxed">{step.description}</p>
                   </div>
-                </Card>
+                </div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Screenshots/Demo Section */}
-      <section id="screenshots" className="py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* ─── STATISTICS SECTION ─── */}
+      <section className="relative py-24 lg:py-32">
+        <div className="absolute inset-0 bg-gradient-to-b from-dark-950 via-dark-900/50 to-dark-950" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              See It In Action
+            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+              Trusted by{' '}
+              <span className="text-gradient">founders worldwide</span>
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Powerful insights delivered through an intuitive interface
-            </p>
-          </motion.div>
-
-          <motion.div
-            variants={stagger}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            className="space-y-8"
-          >
-            {/* Dashboard Preview */}
-            <motion.div variants={fadeIn} className="rounded-2xl overflow-hidden shadow-2xl border border-gray-200">
-              <div className="bg-gray-900 px-4 py-3 flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                <span className="ml-4 text-gray-400 text-sm">Analytics Dashboard</span>
-              </div>
-              <div className="bg-gray-100 p-8">
-                <div className="bg-white rounded-lg shadow-lg p-6">
-                  <div className="grid grid-cols-4 gap-4 mb-6">
-                    <div className="bg-blue-50 rounded-lg p-4 h-24"></div>
-                    <div className="bg-green-50 rounded-lg p-4 h-24"></div>
-                    <div className="bg-purple-50 rounded-lg p-4 h-24"></div>
-                    <div className="bg-orange-50 rounded-lg p-4 h-24"></div>
-                  </div>
-                  <div className="bg-gray-50 rounded-lg p-6 h-64"></div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Analysis Tool Preview */}
-            <motion.div variants={fadeIn} className="rounded-2xl overflow-hidden shadow-2xl border border-gray-200">
-              <div className="bg-gray-900 px-4 py-3 flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-                <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                <span className="ml-4 text-gray-400 text-sm">Analysis Tool</span>
-              </div>
-              <div className="bg-gray-100 p-8">
-                <div className="bg-white rounded-lg shadow-lg p-6">
-                  <div className="space-y-4">
-                    <div className="h-12 bg-gray-100 rounded"></div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="h-20 bg-gray-100 rounded"></div>
-                      <div className="h-20 bg-gray-100 rounded"></div>
-                    </div>
-                    <div className="h-32 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg flex items-center justify-center">
-                      <div className="w-32 h-32 rounded-full border-8 border-indigo-200"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Statistics Section */}
-      <section className="py-24 bg-gradient-to-br from-indigo-600 to-purple-700 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl font-bold mb-4">Trusted by founders worldwide</h2>
-            <p className="text-xl text-indigo-100">
+            <p className="text-lg text-surface-400 max-w-2xl mx-auto">
               Join thousands of entrepreneurs using Venture Autopsy to build better companies.
             </p>
           </motion.div>
 
-          <motion.div
-            variants={stagger}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            className="grid grid-cols-2 lg:grid-cols-4 gap-8"
-          >
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
             {[
-              { value: 520, suffix: '+', label: 'Startups Analyzed' },
-              { value: 45, suffix: 'K', label: 'Founders Helped' },
-              { value: 12, suffix: 'K', label: 'Risk Factors Identified' },
-              { value: 98, suffix: '%', label: 'Satisfaction Rate' },
+              { value: '50,000+', label: 'Startups Analyzed', color: 'from-accent-400 to-cyan-400' },
+              { value: '45,000+', label: 'Founders Helped', color: 'from-brand-400 to-purple-400' },
+              { value: '12,000+', label: 'Risk Factors', color: 'from-warning-400 to-amber-400' },
+              { value: '98%', label: 'Satisfaction Rate', color: 'from-success-400 to-emerald-400' },
             ].map((stat, i) => (
               <motion.div
                 key={i}
-                variants={fadeIn}
-                custom={i}
-                className="text-center"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="text-center p-6 rounded-2xl bg-elevation-2 border border-dark-700/50"
               >
-                <div className="text-5xl font-extrabold mb-2">
-                  <AnimatedCounter target={stat.value} suffix={stat.suffix} />
+                <div className={`text-4xl sm:text-5xl font-bold bg-gradient-to-br ${stat.color} bg-clip-text text-transparent mb-2`}>
+                  {stat.value}
                 </div>
-                <p className="text-indigo-200 text-lg">{stat.label}</p>
+                <p className="text-sm text-surface-400">{stat.label}</p>
               </motion.div>
             ))}
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* FAQ Section */}
-      <section id="faq" className="py-24 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* ─── FAQ SECTION ─── */}
+      <section id="faq" className="relative py-24 lg:py-32">
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">
-              Frequently Asked Questions
+            <Badge variant="info" className="mb-4">FAQ</Badge>
+            <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+              Frequently Asked{' '}
+              <span className="text-gradient">Questions</span>
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-lg text-surface-400">
               Get answers to common questions about Venture Autopsy.
             </p>
           </motion.div>
@@ -669,10 +536,31 @@ export default function Landing() {
             initial="hidden"
             whileInView="show"
             viewport={{ once: true }}
-            className="space-y-4"
+            className="space-y-3"
           >
-            {faqs.map((faq, i) => (
-              <motion.div key={i} variants={fadeIn} custom={i}>
+            {[
+              {
+                question: 'How does Venture Autopsy work?',
+                answer: 'Venture Autopsy uses AI to analyze your startup\'s profile against a comprehensive database of failed companies. It identifies patterns, calculates risk scores, and provides actionable recommendations to help you avoid common pitfalls.',
+              },
+              {
+                question: 'Is my data secure?',
+                answer: 'Yes, we take data security seriously. All data is encrypted in transit and at rest. We do not share your proprietary information with third parties. Your competitive insights remain confidential.',
+              },
+              {
+                question: 'What industries do you cover?',
+                answer: 'We cover all major industries including SaaS, FinTech, HealthTech, E-commerce, Consumer Tech, Enterprise, and more. Our database is continuously growing with new post-mortems.',
+              },
+              {
+                question: 'How accurate are the risk predictions?',
+                answer: 'Our models are trained on thousands of real startup failure cases. While no prediction can be 100% accurate, our risk scores have been validated against known outcomes and provide statistically significant early warning signals.',
+              },
+              {
+                question: 'Can I export the analysis reports?',
+                answer: 'Yes, you can export detailed analysis reports in PDF and CSV formats. Reports include risk breakdowns, industry comparisons, and prioritized action items.',
+              },
+            ].map((faq, i) => (
+              <motion.div key={i} variants={fadeInUp} custom={i}>
                 <FAQItem
                   question={faq.question}
                   answer={faq.answer}
@@ -685,108 +573,122 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-24 bg-gray-50">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* ─── CTA SECTION ─── */}
+      <section className="relative py-24 lg:py-32">
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
             viewport={{ once: true }}
-            className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl p-12 text-center text-white shadow-2xl"
+            className="relative overflow-hidden rounded-3xl p-12 text-center"
           >
-            <h2 className="text-4xl font-bold mb-4">
-              Ready to Build a More Resilient Startup?
-            </h2>
-            <p className="text-xl text-indigo-100 mb-8 max-w-2xl mx-auto">
-              Join thousands of founders who use Venture Autopsy to learn from the past and build a better future.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link to="/register">
-                <Button
-                  size="lg"
-                  className="gap-2 bg-white text-indigo-600 hover:bg-indigo-50 px-8 h-12 text-base"
-                >
-                  Get Started Free
-                  <ArrowRight className="h-5 w-5" />
-                </Button>
-              </Link>
-              <Link to="/analyze">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="gap-2 border-white/30 text-white hover:bg-white/10 px-8 h-12 text-base"
-                >
-                  <Search className="h-5 w-5" />
-                  Try Analysis
-                </Button>
-              </Link>
+            {/* Background gradient */}
+            <div className="absolute inset-0 bg-gradient-premium" />
+            <div className="absolute inset-0 bg-grid opacity-20" />
+            
+            {/* Content */}
+            <div className="relative z-10">
+              <Sparkles className="w-10 h-10 text-white/80 mx-auto mb-6" />
+              <h2 className="text-4xl sm:text-5xl font-bold text-white mb-4">
+                Ready to Build a More Resilient Startup?
+              </h2>
+              <p className="text-lg text-white/80 mb-8 max-w-2xl mx-auto">
+                Join thousands of founders who use Venture Autopsy to learn from the past and build a better future.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <Link to="/register">
+                  <Button
+                    size="xl"
+                    className="gap-2 bg-white text-brand-600 hover:bg-white/90 px-8 shadow-xl"
+                  >
+                    Get Started Free
+                    <ArrowRight className="w-5 h-5" />
+                  </Button>
+                </Link>
+                <Link to="/analyze">
+                  <Button
+                    variant="outline"
+                    size="xl"
+                    className="gap-2 border-white/30 text-white hover:bg-white/10 px-8"
+                  >
+                    <Search className="w-5 h-5" />
+                    Try Free Analysis
+                  </Button>
+                </Link>
+              </div>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-gray-300 py-16">
+      {/* ─── FOOTER ─── */}
+      <footer className="relative border-t border-dark-800 py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
             <div className="col-span-2 lg:col-span-2">
-              <Link to="/" className="flex items-center gap-2 mb-4">
-                <span className="text-3xl">🔬</span>
-                <span className="text-xl font-bold text-white">Venture Autopsy</span>
+              <Link to="/" className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 rounded-lg bg-gradient-premium flex items-center justify-center">
+                  <Activity className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-lg font-bold text-white">
+                  Venture <span className="text-accent-400">Autopsy</span>
+                </span>
               </Link>
-              <p className="text-gray-400 max-w-sm leading-relaxed">
+              <p className="text-sm text-surface-500 max-w-sm leading-relaxed">
                 AI-powered startup failure intelligence platform. Learn from the past to build a better future.
               </p>
-              <div className="flex gap-4 mt-6">
-                <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors">
-                  <Github className="h-5 w-5" />
+              <div className="flex gap-3 mt-6">
+                <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-xl bg-dark-800 hover:bg-dark-700 text-surface-400 hover:text-white transition-all">
+                  <Github className="w-4 h-4" />
                 </a>
-                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors">
-                  <Twitter className="h-5 w-5" />
+                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-xl bg-dark-800 hover:bg-dark-700 text-surface-400 hover:text-white transition-all">
+                  <Twitter className="w-4 h-4" />
                 </a>
-                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors">
-                  <Linkedin className="h-5 w-5" />
+                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-xl bg-dark-800 hover:bg-dark-700 text-surface-400 hover:text-white transition-all">
+                  <Linkedin className="w-4 h-4" />
                 </a>
               </div>
             </div>
 
             <div>
-              <h4 className="font-semibold text-white mb-4">Product</h4>
-              <ul className="space-y-2">
-                <li><Link to="/analyze" className="hover:text-white transition-colors">Analyze</Link></li>
-                <li><Link to="/dashboard" className="hover:text-white transition-colors">Dashboard</Link></li>
-                <li><Link to="/analytics" className="hover:text-white transition-colors">Analytics</Link></li>
-                <li><Link to="/compare" className="hover:text-white transition-colors">Compare</Link></li>
+              <h4 className="text-sm font-semibold text-white mb-4">Product</h4>
+              <ul className="space-y-2.5">
+                <li><Link to="/analyze" className="text-sm text-surface-500 hover:text-white transition-colors">Analyze</Link></li>
+                <li><Link to="/dashboard" className="text-sm text-surface-500 hover:text-white transition-colors">Dashboard</Link></li>
+                <li><Link to="/analytics" className="text-sm text-surface-500 hover:text-white transition-colors">Analytics</Link></li>
+                <li><Link to="/compare" className="text-sm text-surface-500 hover:text-white transition-colors">Compare</Link></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-semibold text-white mb-4">Resources</h4>
-              <ul className="space-y-2">
-                <li><a href="#" className="hover:text-white transition-colors">Documentation</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">API Reference</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Support</a></li>
+              <h4 className="text-sm font-semibold text-white mb-4">Resources</h4>
+              <ul className="space-y-2.5">
+                <li><a href="#" className="text-sm text-surface-500 hover:text-white transition-colors">Documentation</a></li>
+                <li><a href="#" className="text-sm text-surface-500 hover:text-white transition-colors">API Reference</a></li>
+                <li><a href="#" className="text-sm text-surface-500 hover:text-white transition-colors">Blog</a></li>
+                <li><a href="#" className="text-sm text-surface-500 hover:text-white transition-colors">Support</a></li>
               </ul>
             </div>
 
             <div>
-              <h4 className="font-semibold text-white mb-4">Company</h4>
-              <ul className="space-y-2">
-                <li><a href="#" className="hover:text-white transition-colors">About</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Privacy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Terms</a></li>
+              <h4 className="text-sm font-semibold text-white mb-4">Company</h4>
+              <ul className="space-y-2.5">
+                <li><a href="#" className="text-sm text-surface-500 hover:text-white transition-colors">About</a></li>
+                <li><a href="#" className="text-sm text-surface-500 hover:text-white transition-colors">Careers</a></li>
+                <li><a href="#" className="text-sm text-surface-500 hover:text-white transition-colors">Privacy</a></li>
+                <li><a href="#" className="text-sm text-surface-500 hover:text-white transition-colors">Terms</a></li>
               </ul>
             </div>
           </div>
 
-          <div className="border-t border-gray-800 mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-gray-400">
-              {'\u00A9'} {new Date().getFullYear()} Venture Autopsy. All rights reserved.
+          <div className="divider my-8" />
+
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-sm text-surface-500">
+              &copy; {new Date().getFullYear()} Venture Autopsy. All rights reserved.
             </p>
-            <div className="flex items-center gap-2 text-sm text-gray-400">
-              <CheckCircle2 className="h-4 w-4 text-green-500" />
+            <div className="flex items-center gap-2 text-sm text-surface-500">
+              <span className="status-dot-active" />
               All systems operational
             </div>
           </div>
