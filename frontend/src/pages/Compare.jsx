@@ -177,13 +177,11 @@ export default function Compare() {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-          <GitCompare className="h-8 w-8 text-gray-400" />
+        <h1 className="page-title flex items-center gap-3">
+          <GitCompare className="h-8 w-8 text-accent-400" />
           Startup Comparison
         </h1>
-        <p className="text-gray-500 mt-1">
-          Compare two startups side by side to analyze differences in funding, lifespan, industry, and more.
-        </p>
+        <p className="page-description">Compare two startups side by side to analyze differences</p>
       </motion.div>
 
       {error ? (
