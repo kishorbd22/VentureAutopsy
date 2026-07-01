@@ -4,12 +4,14 @@ import { motion } from "framer-motion"
 import {
   ArrowLeft, Download, Share2, MessageSquare, Sparkles,
   TrendingUp, AlertTriangle, CheckCircle2, Target,
-  Calendar, BookOpen, Lightbulb, RefreshCw
+  Calendar, BookOpen, Lightbulb, RefreshCw, Activity,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card"
 import { Badge } from "../components/ui/badge"
 import { Button } from "../components/ui/button"
 import { Textarea } from "../components/ui/textarea"
+import { Separator } from "../components/ui/separator"
+import { Skeleton, SkeletonLine } from "../components/ui/skeleton"
 import {
   useAIReport,
   useAIChat,
